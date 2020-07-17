@@ -9,39 +9,35 @@
 </svg>
 <script>
 async function init() {
-  const data = await d3.csv('https://flunky.github.io/cars2017.csv');
-  console.log(data);
+  const data = await d3.csv('https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/michelin_star_restaurants_final.csv');
+  var PriceByStar = d3.nest().key(function(d) {return d.Stars}).entries(data);
+  console.log(PriceByStar);
   var width = 200
   var height = 200
   var margin = 50
-  x = d3.scaleLog().domain([10,150]).range([0,width]).base(10);
-  y = d3.scaleLog().domain([10,150]).range([height,0]).base(10);
+  x = d3.scaleBand().domain([1,2,3]).range([0,width]);
+  y = d3.scaleLinear().domain([0,2629]).range([height,0]);
   d3.select('svg')
-    .append("g")
-      .attr("transform", "translate("+margin+","+margin+")")
-    .selectAll('circle')
-    .data(data)
-    .enter()
-    .append('circle')
-      .attr('cx',function(d,i) {return x(Number(d.AverageCityMPG));})
-      .attr('cy',function(d,i) {return y(Number(d.AverageHighwayMPG));})
-      .attr('r',function(d,i) {return 2+Number(d.EngineCylinders);})
-
-
-
-  d3.select('svg')
-    .append("g")
-      .attr("transform", "translate("+margin+","+margin+")")
-      .call(d3.axisLeft(y)
-        .tickValues([10, 20, 50, 100])
-        .tickFormat(d3.format("~s")))
+  .append("g")
+    .attr("transform", "translate("+margin+","+margin+")")
+  .selectAll('rect')
+  .data(data)
+  .enter()
+  .append('rect')
+    .attr('x',function(d,i) {return x(i);})
+    .attr('y',function(d,i) {return y(d);})
+    .attr('width',x.bandwidth())
+    .attr('height',function(d,i) {return y(42-d);})
 
   d3.select('svg')
-    .append("g")
-      .attr("transform", "translate("+margin+","+(height+margin)+")")
-      .call(d3.axisBottom(x)
-        .tickValues([10, 20, 50, 100])
-        .tickFormat(d3.format("~s")))
+  .append("g")
+    .attr("transform", "translate("+margin+","+margin+")")
+    .call(d3.axisLeft(y))
+
+  d3.select('svg')
+  .append("g")
+    .attr("transform", "translate("+margin+","+(height+margin)+")")
+    .call(d3.axisBottom(x))
 }
 </script>
 </body>
