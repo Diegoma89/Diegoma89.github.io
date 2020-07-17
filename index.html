@@ -3,31 +3,33 @@
 <h1>Hello World</h1>
 <p>Bleh.</p>
 <script src='https://d3js.org/d3.v5.min.js'></script>
-<style> circle {fill: lightblue; stroke: black;} </style>
+<style> rect {fill: lightblue; stroke: black;} </style>
 <body onload='init()'>
 <svg width=300 height=300>
 </svg>
 <script>
 async function init() {
   const data = await d3.csv('https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/michelin_star_restaurants_final.csv');
-  var PriceByStar = d3.nest().key(function(d) {return d.Stars}).entries(data);
+  var PriceByStar = d3.nest().key(function(d) {return d.Stars}).rollup(function(v) {return d3.mean(v, function(d) {return d.AvgPriceUSD})}).entries(data);
   console.log(PriceByStar);
   var width = 200
   var height = 200
   var margin = 50
+  var maxValue = d3.max(PriceByStar, function(d) { return d.value })
+  console.log(maxValue);
   x = d3.scaleBand().domain([1,2,3]).range([0,width]);
-  y = d3.scaleLinear().domain([0,2629]).range([height,0]);
+  y = d3.scaleLinear().domain([0, maxValue]).range([height,0]);
   d3.select('svg')
   .append("g")
     .attr("transform", "translate("+margin+","+margin+")")
   .selectAll('rect')
-  .data(data)
+  .data(PriceByStar)
   .enter()
   .append('rect')
-    .attr('x',function(d,i) {return x(i);})
-    .attr('y',function(d,i) {return y(d);})
+    .attr('x', function(d) {return x(d.key)})
+    .attr('y',function(d) {return y(d.value)})
     .attr('width',x.bandwidth())
-    .attr('height',function(d,i) {return y(42-d);})
+    .attr('height',function(d) {return y(maxValue-d.value)})
 
   d3.select('svg')
   .append("g")
