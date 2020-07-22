@@ -9,37 +9,34 @@
 </svg>
 <script>
 async function init() {
-  const data = await d3.csv('https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/michelin_star_restaurants_final.csv');
-  var PriceByStar = d3.nest().key(function(d) {return d.Stars}).rollup(function(v) {return d3.mean(v, function(d) {return d.AvgPriceUSD})}).entries(data);
-  console.log(PriceByStar);
-  var width = 200
-  var height = 200
-  var margin = 50
-  var maxValue = d3.max(PriceByStar, function(d) { return d.value })
-  console.log(maxValue);
-  x = d3.scaleBand().domain([1,2,3]).range([0,width]);
-  y = d3.scaleLinear().domain([0, maxValue]).range([height,0]);
+  const data = await d3.csv('https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/data_matches_formatted_reduced.csv');
+  const civ1WD = data.filter(function(d) {return d.teamcivs.includes("Celts")})
+  console.log(civ1WD);
+  const civ2WD = civ1WD.filter(function(d) {return d.teamcivs.includes("Celts")})
+  console.log(civ2WD);
+  var Winrate = d3.sum(civ2WD, function(d) { return d.won });
+  console.log(Winrate);
+  console.log(civ2WD.length);
+  var center = 150
+  var inrad = 50
+  var outrad = 100
+  var color = ['green','red']
+  var pie = d3.pie();
+  var arc = d3.arc().innerRadius(inrad).outerRadius(outrad);
+
   d3.select('svg')
   .append("g")
-    .attr("transform", "translate("+margin+","+margin+")")
-  .selectAll('rect')
-  .data(PriceByStar)
+    .attr("transform", "translate(150,150)")
+  .selectAll("path")
+  .data(pie([Winrate, civ2WD.length-Winrate]))
   .enter()
-  .append('rect')
-    .attr('x', function(d) {return x(d.key)})
-    .attr('y',function(d) {return y(d.value)})
-    .attr('width',x.bandwidth())
-    .attr('height',function(d) {return y(maxValue-d.value)})
+  .append("path")
+    .attr("d", arc)
+    .attr("fill", function(d,i) {return color[i];});
 
-  d3.select('svg')
-  .append("g")
-    .attr("transform", "translate("+margin+","+margin+")")
-    .call(d3.axisLeft(y))
-
-  d3.select('svg')
-  .append("g")
-    .attr("transform", "translate("+margin+","+(height+margin)+")")
-    .call(d3.axisBottom(x))
+  d3.select('body')
+  .append("p")
+  .text("Britons and Mayans combination Winrate")
 }
 </script>
 </body>
