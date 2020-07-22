@@ -5,12 +5,52 @@
 <script src='https://d3js.org/d3.v5.min.js'></script>
 <style> rect {fill: lightblue; stroke: black;} </style>
 <body onload='init()'>
-<svg width=300 height=300>
+<svg width=1900 height=1000>
 </svg>
 <script>
 async function init() {
+  const winrateciv = await d3.csv('https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/winrate_civ.csv');
   const data = await d3.csv('https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/data_matches_formatted_reduced.csv');
-  const civ1WD = data.filter(function(d) {return d.teamcivs.includes("Celts")})
+
+  civlist = winrateciv.map(function(d) {return d.civ});
+  winrates = winrateciv.map(function(d) {return d.winrate});
+
+  console.log(civlist);
+  console.log(winrates);
+  var width = 1700
+  var height = 800
+  var margin = 100
+  x = d3.scaleBand().domain(civlist).range([0,width]);
+  y = d3.scaleLinear().domain([0,1]).range([height,0]);
+  d3.select('svg')
+    .append("g")
+      .attr("transform", "translate("+margin+","+margin+")")
+    .selectAll('rect')
+    .data(winrateciv)
+    .enter()
+    .append('rect')
+      .attr('x',function(d) {return x(d.civ);})
+      .attr('y',function(d) {return y(d.winrate);})
+      .attr('width',x.bandwidth())
+      .attr('height',function(d,i) {return y(1-Number(d.winrate));})
+
+  d3.select('svg')
+    .append("g")
+      .attr("transform", "translate("+margin+","+margin+")")
+      .call(d3.axisLeft(y))
+
+  d3.select('svg')
+    .append("g")
+      .attr("transform", "translate("+margin+","+(height+margin)+")")
+      .call(d3.axisBottom(x))
+      .selectAll("text")
+      .attr("y", 0)
+      .attr("x", 9)
+      .attr("dy", ".35em")
+      .attr("transform", "rotate(90)")
+      .style("text-anchor", "start");
+
+  /*const civ1WD = data.filter(function(d) {return d.teamcivs.includes("Celts")})
   console.log(civ1WD);
   const civ2WD = civ1WD.filter(function(d) {return d.teamcivs.includes("Celts")})
   console.log(civ2WD);
@@ -36,7 +76,7 @@ async function init() {
 
   d3.select('body')
   .append("p")
-  .text("Britons and Mayans combination Winrate")
+  .text("Britons and Mayans combination Winrate")*/
 }
 </script>
 </body>
