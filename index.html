@@ -4,17 +4,30 @@
 <p>Bleh.</p>
 <script src='https://d3js.org/d3.v5.min.js'></script>
 <style> rect {fill: lightblue; stroke: black;} </style>
+<style>
+.link line {stroke: black;}
+.node circle {stroke: black; fill: White;}
+.node text {text-anchor: middle; font-size: 20px}
+</style>
 <body onload='init()'>
-<svg width=1900 height=1000>
+<button onclick="DoSome()">Britons</button>
+<svg width=600 height=600>
 </svg>
 <script>
+
+function DoSome(){
+  d3.select("svg").selectAll("circle").style("fill", "green");
+}
+
+
 async function init() {
   const winrateciv = await d3.csv('https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/winrate_civ.csv');
+  const data = await d3.csv('https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/data_matches_formatted_reduced.csv');
   const data = await d3.csv('https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/data_matches_formatted_reduced.csv');
 
   civlist = winrateciv.map(function(d) {return d.civ});
   winrates = winrateciv.map(function(d) {return d.winrate});
-
+/*
   console.log(civlist);
   console.log(winrates);
   var width = 1700
@@ -49,11 +62,176 @@ async function init() {
       .attr("dy", ".35em")
       .attr("transform", "rotate(90)")
       .style("text-anchor", "start");
+*/
 
-  /*const civ1WD = data.filter(function(d) {return d.teamcivs.includes("Celts")})
+
+ const civ1WD = data.filter(function(d) {return d.teamcivs.includes("Britons")})
   console.log(civ1WD);
-  const civ2WD = civ1WD.filter(function(d) {return d.teamcivs.includes("Celts")})
-  console.log(civ2WD);
+
+  var i;
+  var PairWins = [];
+  var PairMatches = [];
+  var PairWinrates = [];
+  var CurrCiv = "Britons";
+
+
+
+var svg = d3.select("svg"),
+width = +svg.attr("width"),
+height = +svg.attr("height");
+
+var simulation = d3.forceSimulation()
+.force("link", d3.forceLink().distance(function(d) { return d.winrate;})
+    .id(function(d) { return d.value;}))
+.force("charge", d3.forceManyBody().strength(-300))
+.force("center", d3.forceCenter(width / 2, height / 2));
+
+console.log(civlist);
+
+var nodes = [
+{"value": "Aztecs"},
+{"value": "Berbers"},
+{"value": "Britons"},
+{"value": "Celts"},
+{"value": "Mayans"},
+{"value": "Huns"}
+];
+
+console.log(nodes);
+/*
+var nodes = [
+{"value": 4},
+{"value": 8},
+{"value": 15},
+{"value": 16},
+{"value": 23},
+{"value": 42}
+];*/
+
+
+simulation.nodes(nodes);
+
+var links = [
+{"source":  "Britons", "target":  "Aztecs", "winrate": 300},
+{"source": "Britons", "target":  "Berbers", "winrate": 100},
+{"source": "Britons", "target":  "Celts", "winrate": 200},
+{"source": "Britons", "target":  "Mayans", "winrate": 110},
+{"source": "Britons", "target": "Huns", "winrate": 400},
+
+];
+
+simulation.force("link").links(links);
+
+console.log(simulation);
+
+var linksel = svg.append("g")
+.attr("class", "link")
+.selectAll("line").data(links).enter().append("line")
+
+var nodesel = svg.selectAll(".node")
+.data(nodes)
+.enter().append("g")
+.attr("class", "node")
+.call(d3.drag()
+      .on("start", dragstarted)
+      .on("drag", dragged)
+      .on("end", dragended));
+
+nodesel.append("circle")
+.attr("r",40);
+
+nodesel.append("text")
+.attr("transform","translate(0,6)")
+.text(function (d) { return d.value; });
+
+// replace "tick" with "end" for static layout
+simulation.on("tick", ticked);
+
+function ticked() {
+linksel.attr("x1", function(d) { return d.source.x; })
+    .attr("y1", function(d) { return d.source.y; })
+    .attr("x2", function(d) { return d.target.x; })
+    .attr("y2", function(d) { return d.target.y; });
+
+nodesel.attr("transform", function(d) {
+    return "translate(" + d.x + "," + d.y + ")";
+});
+}
+
+function dragstarted(d) {
+if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+d.fx = d.x;
+d.fy = d.y;
+}
+function dragged(d) {
+d.fx = d3.event.x;
+d.fy = d3.event.y;
+}
+function dragended(d) {
+if (!d3.event.active) simulation.alphaTarget(0);
+d.fx = null;
+d.fy = null;
+}
+
+
+
+  /*
+  for (i = 0; i < civlist.length; i++) {
+    if (civlist[i] == CurrCiv) {
+      var civ2WD = civ1WD.filter(function(d) { if(d.teamcivs.indexOf(civlist[i]) != d.teamcivs.lastIndexOf(civlist[i])) {return d.teamcivs} });
+    }
+    else {
+      var civ2WD = civ1WD.filter(function(d) {return d.teamcivs.includes(civlist[i])});
+    };
+
+    var PairWin = d3.sum(civ2WD, function(d) { return d.won });
+    PairWins.push(PairWin);
+    PairMatches.push(civ2WD.length);
+    PairWinrates.push(PairWin/civ2WD.length)
+  };
+
+
+  var width = 1700
+  var height = 800
+  var margin = 100
+
+  x = d3.scaleBand().domain(civlist).range([0,width]);
+  y = d3.scaleLinear().domain([0,1]).range([height,0]);
+  d3.select('svg')
+    .append("g")
+      .attr("transform", "translate("+margin+","+margin+")")
+    .selectAll('rect')
+    .data(PairWinrates)
+    .enter()
+    .append('rect')
+      .attr('x',function(d,i) {return x(civlist[i]);})
+      .attr('y',function(d) {return y(d);})
+      .attr('width',x.bandwidth())
+      .attr('height',function(d) {return y(1-Number(d));})
+
+  d3.select('svg')
+    .append("g")
+      .attr("transform", "translate("+margin+","+margin+")")
+      .call(d3.axisLeft(y))
+
+  d3.select('svg')
+    .append("g")
+      .attr("transform", "translate("+margin+","+(height+margin)+")")
+      .call(d3.axisBottom(x))
+      .selectAll("text")
+      .attr("y", 0)
+      .attr("x", 9)
+      .attr("dy", ".35em")
+      .attr("transform", "rotate(90)")
+      .style("text-anchor", "start");
+
+*/
+
+
+
+/*
+  console.log(PairWins);
+  console.log(PairMatches);
   var Winrate = d3.sum(civ2WD, function(d) { return d.won });
   console.log(Winrate);
   console.log(civ2WD.length);
@@ -76,7 +254,9 @@ async function init() {
 
   d3.select('body')
   .append("p")
-  .text("Britons and Mayans combination Winrate")*/
+  .text("Britons and Mayans combination Winrate")
+*/
+
 }
 </script>
 </body>
