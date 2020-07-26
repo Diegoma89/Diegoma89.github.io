@@ -23,16 +23,18 @@ function DoSome(){
 async function init() {
   const winrateciv = await d3.csv('https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/winrate_civ.csv');
   const data = await d3.csv('https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/data_matches_formatted_reduced.csv');
-  const data = await d3.csv('https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/data_matches_formatted_reduced.csv');
+  const pairMatch = await d3.csv('https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/PairsMatches.csv');
 
   civlist = winrateciv.map(function(d) {return d.civ});
   winrates = winrateciv.map(function(d) {return d.winrate});
-/*
+
+
+/* start histo single
   console.log(civlist);
   console.log(winrates);
-  var width = 1700
-  var height = 800
-  var margin = 100
+  var width = 500
+  var height = 500
+  var margin = 50
   x = d3.scaleBand().domain(civlist).range([0,width]);
   y = d3.scaleLinear().domain([0,1]).range([height,0]);
   d3.select('svg')
@@ -62,9 +64,9 @@ async function init() {
       .attr("dy", ".35em")
       .attr("transform", "rotate(90)")
       .style("text-anchor", "start");
-*/
+end histo single */
 
-
+ /*start nodes
  const civ1WD = data.filter(function(d) {return d.teamcivs.includes("Britons")})
   console.log(civ1WD);
 
@@ -98,15 +100,6 @@ var nodes = [
 ];
 
 console.log(nodes);
-/*
-var nodes = [
-{"value": 4},
-{"value": 8},
-{"value": 15},
-{"value": 16},
-{"value": 23},
-{"value": 42}
-];*/
 
 
 simulation.nodes(nodes);
@@ -172,10 +165,19 @@ if (!d3.event.active) simulation.alphaTarget(0);
 d.fx = null;
 d.fy = null;
 }
+ end nodes */
 
 
+/* start histo combined
+ const civ1WD = data.filter(function(d) {return d.teamcivs.includes("Britons")})
+  console.log(civ1WD);
 
-  /*
+  var i;
+  var PairWins = [];
+  var PairMatches = [];
+  var PairWinrates = [];
+  var CurrCiv = "Britons";
+
   for (i = 0; i < civlist.length; i++) {
     if (civlist[i] == CurrCiv) {
       var civ2WD = civ1WD.filter(function(d) { if(d.teamcivs.indexOf(civlist[i]) != d.teamcivs.lastIndexOf(civlist[i])) {return d.teamcivs} });
@@ -191,9 +193,9 @@ d.fy = null;
   };
 
 
-  var width = 1700
-  var height = 800
-  var margin = 100
+  var width = 500
+  var height = 500
+  var margin = 50
 
   x = d3.scaleBand().domain(civlist).range([0,width]);
   y = d3.scaleLinear().domain([0,1]).range([height,0]);
@@ -225,11 +227,12 @@ d.fy = null;
       .attr("transform", "rotate(90)")
       .style("text-anchor", "start");
 
-*/
+end histo combined */
 
 
+/*start incomplete pie
 
-/*
+
   console.log(PairWins);
   console.log(PairMatches);
   var Winrate = d3.sum(civ2WD, function(d) { return d.won });
@@ -255,7 +258,21 @@ d.fy = null;
   d3.select('body')
   .append("p")
   .text("Britons and Mayans combination Winrate")
-*/
+end incomplete pie */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }
 </script>
