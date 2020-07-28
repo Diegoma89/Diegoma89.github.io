@@ -2,37 +2,86 @@
 <html>
 <script src='https://d3js.org/d3.v5.min.js'></script>
 <style>
+h1 {text-align: center;}
 rect {fill: lightblue; stroke: black;}
 path.fade{ display: none;}
 .link line {stroke: black;}
 .node circle {stroke: black; fill: White;}
 .node text {text-anchor: middle; font-size: 20px}
-#tooltip{
-  opacity: 0;
-  position: absolute;
+
+.btn-group .button {
+  background-color: white;
+  border-radius: 4px;
+  color: black;
+  padding: 2px 5px;
   text-align: center;
-  width: 60px;
-  height: 40px;
-  background: white;
-  border: 0px;
+  font-size: 16px;
+  float: left;
 }
+
+.btn-group .button:hover {
+  background-color: grey;
+}
+
+.disabled {
+  border: 1px solid #555555;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.slides {
+  border: 1px solid #555555;
+}
+
+.navigation {
+  border: 1px solid #555555;
+}
+
+
+
+#civtextdiv {
+  position: absolute;
+  text-align: left;
+   word-wrap: break-word;
+   width: 800px;
+}
+
 </style>
 <body onload='init()'>
 
-<div id="tooltip"></div>
+<h1>Age of Empires 2: Definitive Edition - Winrates by Civilization in Team Games</h1>
+
+<div id="btngroup" class="btn-group">
+  <button id="Prev" class="button navigation"><</button>
+  <button id="S1" class="button slides">1</button>
+  <button id="S2" class="button slides" onclick="Press2()">2</button>
+  <button id="S3" class="button disabled">3</button>
+  <button id="Next" class="button navigation">></button>
+</div>
+
+<p><br></p>
+<div id="civtextdiv"></div>
 
 <script>
 
+function Press2() {
+  S3.style.opacity = 1;
+  S3.style.cursor = "default";
+  d3.selectAll("svg").remove();
+  civtextdiv.remove()
+  slide2();
+}
+
+
+function slide2(){
+    console.log("Slide2");
+    };
 
 function rotate(angle){
     if(angle > Math.PI) {
         return "rotate(180)"; }
     else { return ""; }
     };
-
-function DoSome(){
-  d3.select("svg").selectAll("circle").style("fill", "green");
-}
 
 
 async function init() {
@@ -47,43 +96,84 @@ async function init() {
   winrates = winrateciv.map(function(d) {return d.winrate});
 
 
-  function updatepie(){
-       console.log("remove");
-       console.log(d3.event.srcElement.__data__);
+  function updatepie(d, i){
+
+//console.log(value);
        svg.selectAll("image").remove();
-       svg.selectAll("path").remove();
-       svg.append("g")
-           .attr("transform", "translate(1100,150)")
-         .selectAll("path")
+
+       d3.select(this).style("stroke-width", 3);
+
+       groupspie.selectAll("path")
          .data(pie([d3.event.srcElement.__data__.winrate, 1-d3.event.srcElement.__data__.winrate]))
-         .enter()
-         .append("path")
            .attr("d", arc)
            .attr("fill", function(d,i) {if(i==0) { return color(4)} else {return color(2)};})
            .attr("stroke", "black")
-           .attr("stroke-width", 1);
+           .attr("stroke-width", 0.5);
+
+
+       groupspie.append("image")
+           .attr("href", "https://vignette.wikia.nocookie.net/ageofempires/images/9/9a/CivIcon-Japanese.png/")
+           .attr("x", -50)
+           .attr("y", -50)
+           .attr("height", "100px")
+           .attr("width", "100px");
+
+
+           groupspie.selectAll("text").remove();
+
+           groupspie.append("text")
+               .each(function(d){ return d.angle = (d.startAngle + d.endAngle) /2; })
+               .attr("class", "text")
+               .style("pointer-events","none")
+               .attr("text-anchor", function(d) { if(d.angle > Math.PI) { return "end"; } else { return "start"; }})
+               .attr("transform", function(d,i){
+                   return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")" +
+                          "translate(" + (outrad + 10) + ")" +
+                           (rotate(d.angle));
+
+               })
+               .text(function(d,i) {if(i==0) { return (d3.event.srcElement.__data__.winrate*100).toFixed(1)+"%"} else {return ((1-d3.event.srcElement.__data__.winrate)*100).toFixed(1)+"%"};})
+               .style("font-family","sans-serif")
+               .style("font-size","15px")
+               .style("font-weight","bold");
+
+var focus = "Infantry";
+var CivBonus = ("<ul><li>Infantry are 20%/25%/30%/35% cheaper in the Dark/Feudal/Castle/Imperial Age.</li><li>Infantry have +1/+2/+3 attack bonus against standard buildings in the Feudal/Castle/Imperial Age.</li><li>Villagers have +5 attack against Wild Boars and carry +15 food from hunting.</li><li>Loom is free.</li><li>+10 population cap in the Imperial Age.</li></ul>");
+var TeamBonus = "Barracks work 20% faster."
+
+var civtextdiv = d3.select("#civtextdiv");
+civtextdiv.style("left","850px").style("top", "670px").html("<b>Focus: </b>"+focus+"<br><br>"+"<b>Civilization Bonuses: </b>"+CivBonus+"<br>"+"<b>Team Bonus: </b>"+TeamBonus);
+
   }
 
 
-  var width = 1100;
-  var height = 500;
-  var margin = 75;
+function mouseoutbar(d, i){
 
-  var widthpie = 300;
+        d3.select(this).style("stroke-width", 1);
+}
+
+
+
+  var screenw = (screen.width-10);
+  var width = 1500;
+  var heightsvg = 650;
+  var smargin = (screenw-width)/2;
+  var tmargin = 50;
+  var widthpie = 250;
+  var height = heightsvg - widthpie;
 
   var svg = d3.select("body").append("svg")
-      .attr("width",  width+(margin*2))
-      .attr("height", height+(margin*2));
-
-  var tooltip = d3.select("#tooltip");
+      .attr("width",  width+(smargin*2))
+      .attr("height", heightsvg+(tmargin*2));
 
 
-  x = d3.scaleBand().domain(civlist).range([0,width-300]).padding(0.2);;
+
+  x = d3.scaleBand().domain(civlist).range([0,width]).padding(0.2);;
   y = d3.scaleLinear().domain([0,1]).range([height,0]);
 
 
   svg.append("g")
-      .attr("transform", "translate("+margin+","+margin+")")
+      .attr("transform", "translate("+smargin+","+tmargin+")")
     .selectAll('rect')
     .data(winrateciv)
     .enter()
@@ -92,14 +182,15 @@ async function init() {
       .attr('y',function(d) {return y(0);})
       .attr('width',x.bandwidth())
       .attr('height',0)
-      .style("fill", function(d, i) {return color(i);});
+      .style("fill", function(d, i) {return color(i);})
+      .style("stroke-width", 1);
 
   svg.append("g")
-      .attr("transform", "translate("+margin+","+margin+")")
+      .attr("transform", "translate("+smargin+","+tmargin+")")
       .call(d3.axisLeft(y).tickFormat(d3.format("~%")));
 
   svg.append("g")
-      .attr("transform", "translate("+margin+","+(height+margin)+")")
+      .attr("transform", "translate("+smargin+","+(height+tmargin)+")")
       .call(d3.axisBottom(x))
       .selectAll("text")
       .attr("y", 0)
@@ -130,25 +221,64 @@ var colorinit = ['grey','darkgrey'];
 var pie = d3.pie().sort(null);
 var arc = d3.arc().innerRadius(inrad).outerRadius(outrad);
 
-console.log(color);
-      svg.append("g")
-          .attr("transform", "translate(1100,150)")
-        .selectAll("path")
+
+
+var groupspie = svg.append("g")
+    .attr("transform", "translate(550,650)")
+    .selectAll("g")
+    .data(pie([0.5, 0.5]))
+    .enter()
+    .append("g");
+
+
+      groupspie.selectAll("path")
         .data(pie([0.5, 0.5]))
         .enter()
         .append("path")
           .attr("d", arc)
           .attr("fill", function(d,i) {return colorinit[i];});
 
+ groupspie.append("text")
+    .each(function(d){ return d.angle = (d.startAngle + d.endAngle) /2; })
+    .attr("class", "text")
+    .style("pointer-events","none")
+    .attr("text-anchor", function(d) { if(d.angle > Math.PI) { return "end"; } else { return "start"; }})
+    .attr("transform", function(d,i){
+        return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")" +
+               "translate(" + (outrad + 10) + ")" +
+                (rotate(d.angle));
+
+    })
+    .text(function(d,i) {if(i==0) { return "%"} else {return "%"};})
+    .style("font-family","sans-serif")
+    .style("font-size","15px");
+
+
 svg.selectAll("rect")
    .on("mouseover", updatepie);
 
-svg.append("image")
-    .attr("href", "https://github.com/Diegoma89/diegoma89.github.io/blob/master/questionmark.png?raw=true")
-    .attr("x", 1050)
-    .attr("y", 100)
+
+svg.selectAll("rect")
+    .on("mouseout", mouseoutbar);
+
+
+groupspie.append("image")
+    .attr("href", "https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/CivIcon-q.png")
+    .attr("x", -50)
+    .attr("y", -50)
     .attr("height", "100px")
     .attr("width", "100px");
+
+
+     groupspie.append("text")
+      .text("2010")
+      .attr("x", 300)
+      .attr("y", -50)
+      .attr("font-family", "sans-serif")
+      .attr("font-size", "11px")
+      .attr("fill", "black");
+
+
 
  /*start nodes
  const civ1WD = data.filter(function(d) {return d.teamcivs.includes("Britons")})
