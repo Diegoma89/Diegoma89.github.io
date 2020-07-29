@@ -85,6 +85,7 @@ function rotate(angle){
 
 async function init() {
   const winrateciv = await d3.csv('https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/winrate_civ.csv');
+  const civdetails = await d3.text("https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/CivTexts/civdetails.csv");
 
   var color = d3.scaleOrdinal(d3.schemeTableau10);
 
@@ -94,7 +95,8 @@ async function init() {
 
   function updatepie(d, i){
 
-//console.log(value);
+
+console.log(civdetails);
        svg.selectAll("image").remove();
 
        d3.select(this).style("stroke-width", 3);
@@ -108,7 +110,7 @@ async function init() {
 
 
        groupspie.append("image")
-           .attr("href", "https://vignette.wikia.nocookie.net/ageofempires/images/9/9a/CivIcon-Japanese.png/")
+           .attr("href", "https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/Icons/CivIcon-" + d3.event.srcElement.__data__.civ + ".png")
            .attr("x", -50)
            .attr("y", -50)
            .attr("height", "100px")
@@ -136,6 +138,7 @@ async function init() {
 var focus = "Infantry";
 var CivBonus = ("<ul><li>Infantry are 20%/25%/30%/35% cheaper in the Dark/Feudal/Castle/Imperial Age.</li><li>Infantry have +1/+2/+3 attack bonus against standard buildings in the Feudal/Castle/Imperial Age.</li><li>Villagers have +5 attack against Wild Boars and carry +15 food from hunting.</li><li>Loom is free.</li><li>+10 population cap in the Imperial Age.</li></ul>");
 var TeamBonus = "Barracks work 20% faster."
+
 
 civtextdiv.style("left","850px").style("top", "670px").html("<b>Focus: </b>"+focus+"<br><br>"+"<b>Civilization Bonuses: </b>"+CivBonus+"<br>"+"<b>Team Bonus: </b>"+TeamBonus);
 
