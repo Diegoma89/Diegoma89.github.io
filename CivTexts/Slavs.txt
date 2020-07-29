@@ -1,0 +1,6 @@
+Infantry and siege weapons
+Boyar
+Farmers work 15% faster.
+Tracking is free. Since the Definitve Edition, Supplies is free.
+Siege Workshop units are 15% cheaper.
+Team bonus: Military buildings (excluding Castles and Docks) provide +5 population.

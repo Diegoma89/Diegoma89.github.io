@@ -1,0 +1,6 @@
+Infantry
+Gbeto
+Buildings cost -15% wood (except Farms).
+Barracks units have +1/+2/+3 pierce armor in the Feudal/Castle/Imperial Age.
+Gold Mining is free.
+Team bonus: Universities research +80% faster.

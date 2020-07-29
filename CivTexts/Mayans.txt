@@ -1,0 +1,7 @@
+Archers
+Plumed Archer
+Start the game with an Eagle Scout.
+Start the game with +1 Villager, but with -50 food.
+Resources last 15% longer.
+Foot archers are 10%/20%/30% cheaper in the Feudal/Castle/Imperial Age.
+Team bonus: Walls are 50% cheaper.

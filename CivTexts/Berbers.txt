@@ -1,0 +1,6 @@
+Navy and cavalry
+Camel Archer and Genitour
+Villagers move +10% faster.
+Stable units are 15%/20% cheaper in the Castle/Imperial Age.
+Ships move +10% faster.
+Team bonus: Genitour are available at the Archery Range.

@@ -1,0 +1,7 @@
+Monks and gunpowder units
+Conquistador and Missionary
+Builders work 30% faster.
+Blacksmith upgrades cost no gold.
+Cannon Galleons have better accuracy and faster cannonballs.
+Hand Cannoneers and Bombard Cannons fire 15% faster.
+Team bonus: Trade units generate +25% gold.

@@ -1,0 +1,6 @@
+Cavalry and Monks
+Leitis
+Start with +150 food.
+Spearman-line and Skirmishers move 10% faster.
+Each garrisoned Relic gives +1 attack to Knights and Leitis (maximum +4).
+Team bonus: Monastery works 20% faster.

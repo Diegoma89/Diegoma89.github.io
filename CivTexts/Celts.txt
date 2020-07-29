@@ -1,0 +1,7 @@
+Infantry and siege weapons
+Woad Raider
+Infantry units move 15% faster.
+Lumberjacks work 15% faster.
+Siege weapons fire +20% faster.
+Enemy herdables can be converted regardless of enemy units next to them.
+Team bonus: Siege Workshops work 20% faster.

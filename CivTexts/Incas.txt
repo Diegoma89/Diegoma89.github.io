@@ -1,0 +1,8 @@
+Infantry
+Kamayuk and Slinger
+Start the game with an Eagle Scout.
+Start with a free Llama.
+Villagers benefit from Blacksmith infantry upgrades.
+Houses support 10 population.
+Buildings cost -15% stone.
+Team bonus: Farms are built 50% faster.

@@ -1,0 +1,6 @@
+Cavalry
+Kipchak
+Additional Town Center can be built in the Feudal Age.
+Siege Workshops and Battering Ram/Capped Ram available in the Feudal/Castle Age.
+Cavalry move 5% faster in the Feudal Age, 10% faster in the Castle Age, and 15% faster in the Imperial Age.
+Team bonus: Palisade Walls have +50% hit points.

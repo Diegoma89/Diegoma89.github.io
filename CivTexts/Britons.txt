@@ -1,0 +1,6 @@
+Foot archers
+Longbowman
+Town Centers cost -50% wood starting in the Castle Age.
+Foot archers (except Skirmishers) have +1/+2 range in the Castle/Imperial Age.
+Shepherds work 25% faster.
+Team bonus: Archery Ranges work 20% faster.

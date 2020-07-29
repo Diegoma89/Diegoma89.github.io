@@ -1,0 +1,7 @@
+Cavalry archers
+Keshik and Flaming Camel
+Herdables contain +50% food.
+Units deal +25% damage when attacking from hills (stacks with the regular hill attack bonus).
+Thumb Ring is free.
+Parthian Tactics is free.
+Team bonus: Cavalry Archers +2 LOS.

@@ -1,0 +1,6 @@
+Infantry and Cavalry
+Konnik
+Militia-line upgrades free.
+Town Centers cost -50% stone.
+Can build Krepost.
+Team bonus: Blacksmiths work 50% faster.

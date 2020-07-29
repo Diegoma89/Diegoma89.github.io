@@ -1,0 +1,6 @@
+Monks and elephants
+Arambai
+Lumber Camp technologies are free.
+Infantry has +1/+2/+3 attack in the Feudal/Castle/Imperial Age.
+Monastery technologies are 50% cheaper.
+Team bonus: Relics are visible on the map from the game start.

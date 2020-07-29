@@ -1,0 +1,6 @@
+Cavalry archers
+Mangudai
+Cavalry archers fire 25% faster.
+Light Cavalry and Hussars have +30% HP.
+Hunters work +50% faster.
+Team bonus: The Scout Cavalry line has +2 Line of Sight.

@@ -1,0 +1,6 @@
+Cavalry
+Magyar Huszar
+Forging, Iron Casting, and Blast Furnace are free.
+Scout Cavalry line is 15% cheaper.
+Villagers kill wild animals in one strike.
+Team bonus: Foot archers have +2 Line of Sight.

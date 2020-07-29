@@ -1,0 +1,7 @@
+Siege weapons and elephants
+Ballista Elephant
+No buildings are required to construct certain buildings or advance in Age.
+Battle Elephants move +15% faster.
+Khmer Villagers drop off food from farms (1 unit at a time) without needing a drop site.
+Villagers can garrison in Houses.
+Team bonus: Scorpions have +1 range.

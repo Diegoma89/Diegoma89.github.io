@@ -1,0 +1,8 @@
+Gunpowder units
+Janissary
+Gunpowder units have +25% HP.
+Gunpowder technologies are 50% cheaper.
+Chemistry is free.
+Gold Miners work 20% faster.
+Light Cavalry and Hussar upgrades are free.
+Team bonus: Gunpowder units are created 25% faster.
