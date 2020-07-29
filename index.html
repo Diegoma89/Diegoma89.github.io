@@ -7,7 +7,7 @@ rect {fill: lightblue; stroke: black;}
 path.fade{ display: none;}
 .link line {stroke: black;}
 .node circle {stroke: black; fill: White;}
-.node text {text-anchor: middle; font-size: 20px}
+.node text {text-anchor: middle; font-size: 10px}
 
 .btn-group .button {
   background-color: white;
@@ -23,12 +23,6 @@ path.fade{ display: none;}
   background-color: grey;
 }
 
-.disabled {
-  border: 1px solid #555555;
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
 .slides {
   border: 1px solid #555555;
 }
@@ -41,6 +35,7 @@ path.fade{ display: none;}
 
 #civtextdiv {
   position: absolute;
+  opacity: 1;
   text-align: left;
    word-wrap: break-word;
    width: 800px;
@@ -53,9 +48,9 @@ path.fade{ display: none;}
 
 <div id="btngroup" class="btn-group">
   <button id="Prev" class="button navigation"><</button>
-  <button id="S1" class="button slides">1</button>
+  <button id="S1" class="button slides" onclick="init()">1</button>
   <button id="S2" class="button slides" onclick="Press2()">2</button>
-  <button id="S3" class="button disabled">3</button>
+  <button id="S3" class="button slides" onclick="Press3()">3</button>
   <button id="Next" class="button navigation">></button>
 </div>
 
@@ -64,18 +59,22 @@ path.fade{ display: none;}
 
 <script>
 
+var civtextdiv = d3.select("#civtextdiv");
+
 function Press2() {
   S3.style.opacity = 1;
   S3.style.cursor = "default";
   d3.selectAll("svg").remove();
-  civtextdiv.remove()
+  civtextdiv.html("");
   slide2();
 }
 
 
-function slide2(){
-    console.log("Slide2");
-    };
+function Press3() {
+  d3.selectAll("svg").remove();
+  civtextdiv.html("");
+  slide3();
+}
 
 function rotate(angle){
     if(angle > Math.PI) {
@@ -86,9 +85,6 @@ function rotate(angle){
 
 async function init() {
   const winrateciv = await d3.csv('https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/winrate_civ.csv');
-  const data = await d3.csv('https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/data_matches_formatted_reduced.csv');
-  const pairMatch = await d3.csv('https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/PairsMatches.csv');
-  const pairsMatrix = await d3.csv("https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/PairsMatrixComplete.csv");
 
   var color = d3.scaleOrdinal(d3.schemeTableau10);
 
@@ -141,7 +137,6 @@ var focus = "Infantry";
 var CivBonus = ("<ul><li>Infantry are 20%/25%/30%/35% cheaper in the Dark/Feudal/Castle/Imperial Age.</li><li>Infantry have +1/+2/+3 attack bonus against standard buildings in the Feudal/Castle/Imperial Age.</li><li>Villagers have +5 attack against Wild Boars and carry +15 food from hunting.</li><li>Loom is free.</li><li>+10 population cap in the Imperial Age.</li></ul>");
 var TeamBonus = "Barracks work 20% faster."
 
-var civtextdiv = d3.select("#civtextdiv");
 civtextdiv.style("left","850px").style("top", "670px").html("<b>Focus: </b>"+focus+"<br><br>"+"<b>Civilization Bonuses: </b>"+CivBonus+"<br>"+"<b>Team Bonus: </b>"+TeamBonus);
 
   }
@@ -161,6 +156,8 @@ function mouseoutbar(d, i){
   var tmargin = 50;
   var widthpie = 250;
   var height = heightsvg - widthpie;
+
+  if(d3.selectAll("svg").size()!=0){ d3.selectAll("svg").remove() };
 
   var svg = d3.select("body").append("svg")
       .attr("width",  width+(smargin*2))
@@ -270,66 +267,208 @@ groupspie.append("image")
     .attr("width", "100px");
 
 
-     groupspie.append("text")
-      .text("2010")
-      .attr("x", 300)
-      .attr("y", -50)
-      .attr("font-family", "sans-serif")
-      .attr("font-size", "11px")
-      .attr("fill", "black");
+    civtextdiv.style("left","850px").style("top", "670px").html("<b>Focus: </b>"+"<br><br>"+"<b>Civilization Bonuses: </b>"+"<br>"+"<b>Team Bonus: </b>");
+
+};
+
+
+async function slide2(){
+            console.log("Slide2");
+
+            const pairsMatrix = await d3.csv("https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/PairsMatrixComplete.csv");
+
+
+        var margin      = {top: 10, right: 10, bottom: 10, left: 10};
+        var width       = 800 - margin.left - margin.right;
+        var height      = 800 - margin.top  - margin.bottom;
+        var innerRadius = width * .4;
+        var outerRadius = innerRadius * 1.05;
+
+        var svg = d3.select("body").append("svg")
+            .attr("width",  width  + margin.left + margin.right)
+            .attr("height", height + margin.top  + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+            .append("g")
+            .attr("class", "chordgraph")
+            .attr("transform", "translate(" + width/2 + "," + height/2 + ")");
+
+
+        var firstColumn = "Civ1";
+
+        //store column names
+        var fc = [],
+            mat_size = pairsMatrix.length,
+            matrix  = [];
+
+        for(var i=0; i < mat_size; i++){
+            matrix.push(new Array(mat_size+1).join('0').split('').map(parseFloat));
+        }
+
+        for(var i=0; i < mat_size; i++){
+
+            var j = 0;
+
+            for(var pairm in pairsMatrix[i]){
+
+                if(pairm != firstColumn){
+                    fc.push(pairm);
+                    matrix[i][j] = +pairsMatrix[i][pairm];
+                    matrix[j][i] = +pairsMatrix[i][pairm];
+                    j++;
+                }
+            }
+        }
+
+        var fo = fc.slice(0,mat_size);
+
+
+        //set color scale. More color options: https://github.com/d3/d3-scale-chromatic
+        var color = d3.scaleOrdinal(d3.schemeTableau10)
+
+        //d3 chord generator
+        var chord = d3.chord()
+            .padAngle(0.01)
+            .sortSubgroups(d3.descending);
+
+        //apply the matrix
+        var chords = chord(matrix);
+
+        //each ribbon generator
+        var ribbon = d3.ribbon()
+            .radius(innerRadius);
+
+        //outer rim arc
+        var arc = d3.arc()
+            .innerRadius(innerRadius)
+            .outerRadius(innerRadius + 20);
+
+        //add each of the groupings for outer rim arcs
+        var group = svg.append("g")
+            .selectAll("g")
+            .data(chords.groups)
+            .enter()
+            .append("g");
+
+        //add each outer rim arc path
+        group.append("path")
+            .attr("fill", function(d){ return color(d.index); })
+            .attr("d", arc)
+            .style("cursor", "pointer")
+            .on("mouseover", function(d, i){
+                ribbons.classed("fade", function(d){
+                    return d.source.index != i && d.target.index != i;
+                });
+            });
+        console.log(chords);
+        //add each ribbon
+        var ribbons = svg.append("g")
+          .attr("fill-opacity", .5)
+          .selectAll("path")
+          .data(chords)
+          .enter()
+          .append("path")
+          .attr("d", ribbon)
+          .attr("fill", function(d){ return color(d.source.index); })
+          .attr("stroke", "black")
+          .style("stroke","Black")
+          .style("stroke-width",".25px");
+
+
+        //add the text labels
+        group.append("text")
+          .each(function(d){ return d.angle = (d.startAngle + d.endAngle) /2; })
+          .attr("class", "text")
+          .style("pointer-events","none")
+          .attr("text-anchor", function(d) { if(d.angle > Math.PI) { return "end"; } else { return "start"; }})
+          .attr("transform", function(d,i){
+              return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")" +
+                     "translate(" + (outerRadius + 10) + ")" +
+                     (rotate(d.angle));
+
+          })
+          .text(function(d,i){
+              //set the text content
+              return fc[i];
+          })
+          .style("font-family","sans-serif")
+          .style("font-size","15px");
 
 
 
- /*start nodes
- const civ1WD = data.filter(function(d) {return d.teamcivs.includes("Britons")})
+            window.addEventListener('mouseup', (e) => {
+
+              if(e.target.tagName == "svg");{
+                ribbons.classed("fade", false)
+              };
+            })
+        };
+
+
+async function slide3(){
+
+console.log("Slide3");
+const winrateciv = await d3.csv('https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/winrate_civ.csv');
+ const data = await d3.csv('https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/data_matches_formatted_reduced.csv');
+ const civ1WD = data.filter(function(d) {return d.teamcivs.includes("Slavs")})
   console.log(civ1WD);
+
+var  civlist = winrateciv.map(function(d) {return d.civ});
+var  winrates = winrateciv.map(function(d) {return d.winrate});
+
 
   var i;
   var PairWins = [];
   var PairMatches = [];
   var PairWinrates = [];
-  var CurrCiv = "Britons";
+  var CurrCiv = "Slavs";
+  var nodes = [{"value": "Selection"}];
+  var links = [];
 
+  for (i = 0; i < civlist.length; i++) {
+    if (civlist[i] == CurrCiv) {
+      var civ2WD = civ1WD.filter(function(d) { if(d.teamcivs.indexOf(civlist[i]) != d.teamcivs.lastIndexOf(civlist[i])) {return d.teamcivs} });
+      nodes.push({"value": civlist[i]});
+      links.push({"source":  "Selection", "target":  civlist[i], "winrate": ((d3.sum(civ2WD, function(d) { return d.won }))/civ2WD.length)});
+    }
+    else {
+      var civ2WD = civ1WD.filter(function(d) {return d.teamcivs.includes(civlist[i])});
+      nodes.push({"value": civlist[i]});
+      links.push({"source":  "Selection", "target":  civlist[i], "winrate": ((d3.sum(civ2WD, function(d) { return d.won }))/civ2WD.length)});
+    };
 
+    var PairWin = d3.sum(civ2WD, function(d) { return d.won });
+    PairWins.push(PairWin);
+    PairMatches.push(civ2WD.length);
+    PairWinrates.push(PairWin/civ2WD.length)
+  };
+
+console.log(PairWinrates);
+var width = 1000;
+var height = 700;
+var radius = 30;
+var margin = 5;
+var svg = d3.select("body").append("svg")
+    .attr("width",  width)
+    .attr("height", height);
 
 var svg = d3.select("svg"),
 width = +svg.attr("width"),
 height = +svg.attr("height");
 
 var simulation = d3.forceSimulation()
-.force("link", d3.forceLink().distance(function(d) { return d.winrate;})
+.force("link", d3.forceLink().distance(function(d) { /*return 400-(d.winrate*400)*/if(d.winrate==0) { return 400 } else {return (Math.abs(Math.log(d.winrate)))*250 };})
     .id(function(d) { return d.value;}))
-.force("charge", d3.forceManyBody().strength(-300))
+.force("charge", d3.forceManyBody())
 .force("center", d3.forceCenter(width / 2, height / 2));
 
-console.log(civlist);
-
-var nodes = [
-{"value": "Aztecs"},
-{"value": "Berbers"},
-{"value": "Britons"},
-{"value": "Celts"},
-{"value": "Mayans"},
-{"value": "Huns"}
-];
-
-console.log(nodes);
 
 
 simulation.nodes(nodes);
 
-var links = [
-{"source":  "Britons", "target":  "Aztecs", "winrate": 300},
-{"source": "Britons", "target":  "Berbers", "winrate": 100},
-{"source": "Britons", "target":  "Celts", "winrate": 200},
-{"source": "Britons", "target":  "Mayans", "winrate": 110},
-{"source": "Britons", "target": "Huns", "winrate": 400},
-
-];
 
 simulation.force("link").links(links);
 
-console.log(simulation);
 
 var linksel = svg.append("g")
 .attr("class", "link")
@@ -345,24 +484,29 @@ var nodesel = svg.selectAll(".node")
       .on("end", dragended));
 
 nodesel.append("circle")
-.attr("r",40);
+.attr("r",radius);
 
 nodesel.append("text")
-.attr("transform","translate(0,6)")
+.attr("transform","translate(0,4)")
 .text(function (d) { return d.value; });
 
 // replace "tick" with "end" for static layout
 simulation.on("tick", ticked);
 
 function ticked() {
-linksel.attr("x1", function(d) { return d.source.x; })
-    .attr("y1", function(d) { return d.source.y; })
-    .attr("x2", function(d) { return d.target.x; })
-    .attr("y2", function(d) { return d.target.y; });
 
-nodesel.attr("transform", function(d) {
-    return "translate(" + d.x + "," + d.y + ")";
-});
+
+nodesel.attr("cx", function(d) { return d.x = Math.max(radius + margin, Math.min(width - radius - margin, d.x)); })
+        .attr("cy", function(d) { return d.y = Math.max(radius + margin, Math.min(height - radius - margin, d.y)); });
+
+        linksel.attr("x1", function(d) { return d.source.x; })
+            .attr("y1", function(d) { return d.source.y; })
+            .attr("x2", function(d) { return d.target.x; })
+            .attr("y2", function(d) { return d.target.y; });
+
+            nodesel.attr("transform", function(d) {
+                return "translate(" + d.x + "," + d.y + ")";
+            });
 }
 
 function dragstarted(d) {
@@ -379,7 +523,7 @@ if (!d3.event.active) simulation.alphaTarget(0);
 d.fx = null;
 d.fy = null;
 }
- end nodes */
+};
 
 
 /* start histo combined
@@ -444,136 +588,6 @@ d.fy = null;
 end histo combined */
 
 
-
-
-/* start chordgraph
-
-var margin      = {top: 10, right: 10, bottom: 10, left: 10};
-var width       = 900 - margin.left - margin.right;
-var height      = 900 - margin.top  - margin.bottom;
-var innerRadius = width * .4;
-var outerRadius = innerRadius * 1.05;
-
-var svg = d3.select("body").append("svg")
-    .attr("width",  width  + margin.left + margin.right)
-    .attr("height", height + margin.top  + margin.bottom)
-    .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-    .append("g")
-    .attr("class", "chordgraph")
-    .attr("transform", "translate(" + width/2 + "," + height/2 + ")");
-
-
-var firstColumn = "Civ1";
-
-//store column names
-var fc = [],
-    mat_size = pairsMatrix.length,
-    matrix  = [];
-
-for(var i=0; i < mat_size; i++){
-    matrix.push(new Array(mat_size+1).join('0').split('').map(parseFloat));
-}
-
-for(var i=0; i < mat_size; i++){
-
-    var j = 0;
-
-    for(var pairm in pairsMatrix[i]){
-
-        if(pairm != firstColumn){
-            fc.push(pairm);
-            matrix[i][j] = +pairsMatrix[i][pairm];
-            matrix[j][i] = +pairsMatrix[i][pairm];
-            j++;
-        }
-    }
-}
-
-var fo = fc.slice(0,mat_size);
-
-
-//set color scale. More color options: https://github.com/d3/d3-scale-chromatic
-var color = d3.scaleOrdinal(d3.schemeTableau10)
-
-//d3 chord generator
-var chord = d3.chord()
-    .padAngle(0.01)
-    .sortSubgroups(d3.descending);
-
-//apply the matrix
-var chords = chord(matrix);
-
-//each ribbon generator
-var ribbon = d3.ribbon()
-    .radius(innerRadius);
-
-//outer rim arc
-var arc = d3.arc()
-    .innerRadius(innerRadius)
-    .outerRadius(innerRadius + 20);
-
-//add each of the groupings for outer rim arcs
-var group = svg.append("g")
-    .selectAll("g")
-    .data(chords.groups)
-    .enter()
-    .append("g");
-
-//add each outer rim arc path
-group.append("path")
-    .attr("fill", function(d){ return color(d.index); })
-    .attr("d", arc)
-    .style("cursor", "pointer")
-    .on("mouseover", function(d, i){
-        ribbons.classed("fade", function(d){
-            return d.source.index != i && d.target.index != i;
-        });
-    });
-console.log(chords);
-//add each ribbon
-var ribbons = svg.append("g")
-  .attr("fill-opacity", .5)
-  .selectAll("path")
-  .data(chords)
-  .enter()
-  .append("path")
-  .attr("d", ribbon)
-  .attr("fill", function(d){ return color(d.source.index); })
-  .attr("stroke", "black")
-  .style("stroke","Black")
-  .style("stroke-width",".25px");
-
-
-//add the text labels
-group.append("text")
-  .each(function(d){ return d.angle = (d.startAngle + d.endAngle) /2; })
-  .attr("class", "text")
-  .style("pointer-events","none")
-  .attr("text-anchor", function(d) { if(d.angle > Math.PI) { return "end"; } else { return "start"; }})
-  .attr("transform", function(d,i){
-      return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")" +
-             "translate(" + (outerRadius + 10) + ")" +
-             (rotate(d.angle));
-
-  })
-  .text(function(d,i){
-      //set the text content
-      return fc[i];
-  })
-  .style("font-family","sans-serif")
-  .style("font-size","15px");
-
-
-
-    window.addEventListener('mouseup', (e) => {
-
-      if(e.target.tagName == "svg");{
-        ribbons.classed("fade", false)
-      };
-    })
-end chordgraph */
-}
 </script>
 </body>
 </html>
