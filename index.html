@@ -78,6 +78,15 @@ path.fade{ display: none;}
   float: left;
 }
 
+.storytext text
+{
+  position: absolute;
+  text-align: center;
+   word-wrap: break-word;
+   width: 350px;
+   font-size: 18px;
+}
+
 #civtextdiv {
   position: absolute;
   opacity: 1;
@@ -119,10 +128,15 @@ var civtextdiv = d3.select("#civtextdiv");
 var civtextdivteam = d3.select("#civtextdivteam");
 var civselection = "Aztecs";
 var civlist;
+var counter = 0;
+var story = 1;
 var color = ["#7f007f","#ffff54","#808000","#9acd32","#7b68ee","#006400","#b0c4de","#00ced1","#ff4500","#008080","#ff69b4","#fffff0","#3cb371","#ff00ff","#4682b4","#d2b48c","#0000ff","#ffc0cb",
              "#fa8072","#32cd32","#8b0000","#dc143c","#dda0dd","#9400d3","#696969","#cd853f","#ffa500","#f0e68c","#b03060","#7fffd4","#98fb98","#1e90ff","#483d8b","#00ff00","#000080"];
 var txtcolor = ["white","black","white","black","white","white","black","black","white","white","black","black","black","white","white","black","white","black",
                 "black","black","white","white","black","white","white","black","black","black","white","black","black","white","white","black","white"];
+
+var storytextarray = ["This dataset contains 3000+ team", "game matches in AOE2: DE.", "", "Each game can host up to 8 players", "in teams of at least 2"];
+
 
 function Press1() {
 
@@ -177,12 +191,20 @@ document.getElementById("slideTitle").innerHTML = "Age of Empires 2: Definitive 
 
   function updatepie(d, i){
 
+
+      var barselection = d3.event.srcElement.__data__;
+      var barelement = d3.event.srcElement;
+
+      if(story ==1){
+        barselection = winrateciv.filter(function(d) {return d.civ == civselection})[0];
+        barelement = document.getElementById(civselection);
+      }
        svg.selectAll("image").remove();
        d3.selectAll("rect").style("stroke-width", 1.5);
-       d3.select(this).style("stroke-width", 3);
+       d3.select(barelement).style("stroke-width", 3);
 
        groupspie.selectAll("path")
-         .data(pie([d3.event.srcElement.__data__.winrate, 1-d3.event.srcElement.__data__.winrate]))
+         .data(pie([barselection.winrate, 1-barselection.winrate]))
            .attr("d", arc)
            .attr("fill", function(d,i) {if(i==0) { return color[5]} else {return color[21]};})
            .attr("stroke", "black")
@@ -190,7 +212,7 @@ document.getElementById("slideTitle").innerHTML = "Age of Empires 2: Definitive 
 
 
        groupspie.append("image")
-           .attr("href", "https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/Icons/CivIcon-" + d3.event.srcElement.__data__.civ + ".png")
+           .attr("href", "https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/Icons/CivIcon-" + barselection.civ + ".png")
            .attr("x", -50)
            .attr("y", -50)
            .attr("height", "100px")
@@ -210,26 +232,22 @@ document.getElementById("slideTitle").innerHTML = "Age of Empires 2: Definitive 
                            (rotate(d.angle));
 
                })
-               .text(function(d,i) {if(i==0) { return (d3.event.srcElement.__data__.winrate*100).toFixed(1)+"%"} else {return ((1-d3.event.srcElement.__data__.winrate)*100).toFixed(1)+"%"};})
+               .text(function(d,i) {if(i==0) { return (barselection.winrate*100).toFixed(1)+"%"} else {return ((1-barselection.winrate)*100).toFixed(1)+"%"};})
                .style("font-family","sans-serif")
                .style("font-size","15px")
                .style("font-weight","bold");
 
 
-var civdet = civdetails.filter(function(d) {return d.Civ.includes(d3.event.srcElement.__data__.civ)});
+var civdet = civdetails.filter(function(d) {return d.Civ.includes(barselection.civ)});
 
 var focus = civdet.map(function(d) {return d.Focus});
 var CivUU = civdet.map(function(d) {return d.UU});
 var TeamBonus = civdet.map(function(d) {return d.TB});
 
 
-civtextdiv.html("<b>"+d3.event.srcElement.__data__.civ+" "+"Civilization Details</b><br><br>"+"<b>Focus: </b>"+focus+"<br><br>"+"<b>Unique Unit: </b>"+CivUU+"<br><br>"+"<b>Team Bonus: </b>"+TeamBonus);
+civtextdiv.html("<b>"+barselection.civ+" "+"Civilization Details</b><br><br>"+"<b>Focus: </b>"+focus+"<br><br>"+"<b>Unique Unit: </b>"+CivUU+"<br><br>"+"<b>Team Bonus: </b>"+TeamBonus);
 
   }
-
-
-
-
 
 
   var screenw = (screen.width-10);
@@ -259,6 +277,8 @@ civtextdiv.html("<b>"+d3.event.srcElement.__data__.civ+" "+"Civilization Details
     .data(winrateciv)
     .enter()
     .append('rect')
+      .attr('class',function(d) {return d.civ;})
+      .attr('id',function(d) {return d.civ;})
       .attr('x',function(d) {return x(d.civ);})
       .attr('y',function(d) {return y(0);})
       .attr('width',x.bandwidth())
@@ -357,24 +377,89 @@ svg.append("rect")
 .style("fill", "none")
 .style("stroke-width", 1.5);
 
-/*
-svg.append("rect")
-.attr('x',10)
-.attr('y',1)
-.attr('width', 1899)
-.attr('height',798)
-.style("fill", "white")
-.style("opacity", 0)
-.style("stroke-width", 1.5)
-.on("mouseup", demo);
-
-
-function demo(){
-
-  svg.selectAll("rect").style("stroke-width", 3)
-};*/
 
     civtextdiv.style("left","850px").style("top", (heightbar+(tmargin)+outrad+50)+"px").html("<b>Civilization Details</b><br><br>"+"<b>Focus: ?</b>"+"<br><br>"+"<b>Unique Unit: ?</b>"+"<br><br>"+"<b>Team Bonus: ?</b>");
+
+if(story == 1){
+
+  svg.append("rect")
+  .attr('x',10)
+  .attr('y',1)
+  .attr('width', 1899)
+  .attr('height',798)
+  .style("fill", "white")
+  .style("opacity", 0)
+  .style("stroke-width", 1.5);
+
+var storybox = svg.append("g")
+.attr("transform", "translate(800,20)");
+
+  storybox.append("rect")
+  .attr('width', 400)
+  .attr('height',200)
+  .style("fill", "white")
+  .style("opacity", 0.8)
+  .style("stroke-width", 1.5);
+
+
+  storybox.selectAll("text")
+  .data(storytextarray)
+  .enter()
+    .append("text")
+    .style("font-size", "20px");
+
+    updatestorytext();
+
+
+  var storyboxbtn = svg.append("g")
+  .attr("transform", "translate(950,170)");
+
+  storyboxbtn.append("rect")
+  .attr('width', 100)
+  .attr('height',40)
+  .style("fill", "white")
+  .style("opacity", 0.8)
+  .style("stroke-width", 1);
+
+  storyboxbtn.append("text")
+  .text("Continue")
+  .style("font-size", "16px")
+  .style("pointer-events", "none")
+  .attr('x',8)
+  .attr('y',25);
+
+  storyboxbtn.on("mouseup", storyshow);
+
+
+}; //Story mode
+
+function updatestorytext(){
+
+  storybox.selectAll("text")
+  .data(storytextarray)
+    .text(function(d){return d})
+    .attr("x", "10")
+    .attr("y", function(d, i) {return 30+(i*25)} );
+
+}
+
+
+function storyshow(){
+
+  if(counter == 0){
+  civselection = "Mayans";
+  updatepie();
+  storytextarray = ["Let's have a look at Mayans.", "They focus on archers and their", "winrate is above average", "", "They have a defensive team bonus"];
+  updatestorytext();
+}
+if (counter == 1) {
+    Press2();
+}
+
+counter++;
+console.log(counter);
+};
+
 
 };
 
