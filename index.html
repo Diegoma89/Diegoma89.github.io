@@ -2,77 +2,155 @@
 <html>
 <script src='https://d3js.org/d3.v5.min.js'></script>
 <style>
-h1 {text-align: center;}
-rect {fill: lightblue; stroke: black;}
+
+body {
+		  overflow: hidden;
+		  margin: 0;
+		  font-size: 20px;
+		  font-family: Copperplate Gothic Light;
+		}
+h1 {
+  text-align: center;
+  font-size: 30px;
+  background-color: firebrick;
+  color: goldenrod;
+}
+rect {stroke: black;}
 path.fade{ display: none;}
 .link line {stroke: black;}
-.node circle {stroke: black; fill: White;}
-.node text {text-anchor: middle; font-size: 10px}
+.node circle {
+  stroke: black;
+  fill: White;
+}
+.node text {
+  text-anchor: middle;
+  font-size: 10px;}
+.icon text {
+  text-anchor: middle;
+  font-size: 10px;
+}
 
-.btn-group .button {
+.imgborder
+{
+  fill: transparent;
+  stroke: transparent;
+  stroke-width: 3px;
+  shape-rendering: crispEdges;
+}
+
+.imgborder:hover
+{
+  stroke: black;
+}
+
+.button:hover {
+  background-color: grey;
+}
+
+.civlist {
+  float: left;
+  margin-left: 900px;
+}
+
+.active {
+  background-color: grey;
+  color: white;
+  border: 2px solid black;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.inactive {
   background-color: white;
-  border-radius: 4px;
   color: black;
-  padding: 2px 5px;
+  border: 1px solid black;
+}
+
+.init {
+  margin-left: 10px;
+}
+
+.slides {
+  border-radius: 4px;
+  padding: 2px 10px;
   text-align: center;
   font-size: 16px;
   float: left;
 }
-
-.btn-group .button:hover {
-  background-color: grey;
-}
-
-.slides {
-  border: 1px solid #555555;
-}
-
-.navigation {
-  border: 1px solid #555555;
-}
-
-
 
 #civtextdiv {
   position: absolute;
   opacity: 1;
   text-align: left;
    word-wrap: break-word;
-   width: 800px;
+   width: 850px;
+   font-size: 18px;
+}
+
+#civtextdivteam {
+  position: absolute;
+  opacity: 1;
+   word-wrap: break-word;
+
 }
 
 </style>
 <body onload='init()'>
 
-<h1>Age of Empires 2: Definitive Edition - Winrates by Civilization in Team Games</h1>
+<h1 id="slideTitle"></h1>
 
-<div id="btngroup" class="btn-group">
-  <button id="Prev" class="button navigation"><</button>
-  <button id="S1" class="button slides" onclick="init()">1</button>
-  <button id="S2" class="button slides" onclick="Press2()">2</button>
-  <button id="S3" class="button slides" onclick="Press3()">3</button>
-  <button id="Next" class="button navigation">></button>
+<div id="btngroup">
+  <button id="S1" class="button init slides active" onclick="Press1()">1</button>
+  <button id="S2" class="button slides inactive" onclick="Press2()">2</button>
+  <button id="S3" class="button slides inactive" onclick="Press3()">3</button>
 </div>
 
 <p><br></p>
 <div id="civtextdiv"></div>
+<div id="civtextdivteam"></div>
 
 <script>
 
+function init(){
+  Slide1();
+}
+
 var civtextdiv = d3.select("#civtextdiv");
+var civtextdivteam = d3.select("#civtextdivteam");
+var civselection = "Aztecs";
+var civlist;
+var color = ["#7f007f","#ffff54","#808000","#9acd32","#7b68ee","#006400","#b0c4de","#00ced1","#ff4500","#008080","#ff69b4","#fffff0","#3cb371","#ff00ff","#4682b4","#d2b48c","#0000ff","#ffc0cb",
+             "#fa8072","#32cd32","#8b0000","#dc143c","#dda0dd","#9400d3","#696969","#cd853f","#ffa500","#f0e68c","#b03060","#7fffd4","#98fb98","#1e90ff","#483d8b","#00ff00","#000080"];
+var txtcolor = ["white","black","white","black","white","white","black","black","white","white","black","black","black","white","white","black","white","black",
+                "black","black","white","white","black","white","white","black","black","black","white","black","black","white","white","black","white"];
+
+function Press1() {
+
+     d3.selectAll("svg").remove();
+     var activebtn = btngroup.getElementsByClassName("active");
+     activebtn[0].className = activebtn[0].className.replace("active", "inactive");
+     S1.className = S1.className.replace("inactive", "active");
+     civtextdivteam.html("");
+
+Slide1();
+};
 
 function Press2() {
-  S3.style.opacity = 1;
-  S3.style.cursor = "default";
+
+  var activebtn = btngroup.getElementsByClassName("active");
+  activebtn[0].className = activebtn[0].className.replace("active", "inactive");
+  S2.className = S2.className.replace("inactive", "active");
   d3.selectAll("svg").remove();
-  civtextdiv.html("");
   slide2();
 }
 
 
 function Press3() {
+  var activebtn = btngroup.getElementsByClassName("active");
+  activebtn[0].className = activebtn[0].className.replace(" active", " inactive");
+  S3.className = S3.className.replace("inactive", "active");
   d3.selectAll("svg").remove();
-  civtextdiv.html("");
+  civtextdivteam.html("");
   slide3();
 }
 
@@ -83,11 +161,15 @@ function rotate(angle){
     };
 
 
-async function init() {
-  const winrateciv = await d3.csv('https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/winrate_civ.csv');
-  const civdetails = await d3.text("https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/CivTexts/civdetails.csv");
 
-  var color = d3.scaleOrdinal(d3.schemeTableau10);
+async function Slide1() {
+
+document.getElementById("slideTitle").innerHTML = "Age of Empires 2: Definitive Edition - Winrate by Civilization in Team Games";
+
+  const winrateciv = await d3.csv('https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/winrate_civ.csv');
+  const civdetails = await d3.csv("https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/CivTexts/civdetails.csv");
+
+  //var color = d3.scaleOrdinal(d3.schemeTableau10);
 
   civlist = winrateciv.map(function(d) {return d.civ});
   winrates = winrateciv.map(function(d) {return d.winrate});
@@ -95,16 +177,14 @@ async function init() {
 
   function updatepie(d, i){
 
-
-console.log(civdetails);
        svg.selectAll("image").remove();
-
+       d3.selectAll("rect").style("stroke-width", 1.5);
        d3.select(this).style("stroke-width", 3);
 
        groupspie.selectAll("path")
          .data(pie([d3.event.srcElement.__data__.winrate, 1-d3.event.srcElement.__data__.winrate]))
            .attr("d", arc)
-           .attr("fill", function(d,i) {if(i==0) { return color(4)} else {return color(2)};})
+           .attr("fill", function(d,i) {if(i==0) { return color[5]} else {return color[21]};})
            .attr("stroke", "black")
            .attr("stroke-width", 0.5);
 
@@ -135,34 +215,35 @@ console.log(civdetails);
                .style("font-size","15px")
                .style("font-weight","bold");
 
-var focus = "Infantry";
-var CivBonus = ("<ul><li>Infantry are 20%/25%/30%/35% cheaper in the Dark/Feudal/Castle/Imperial Age.</li><li>Infantry have +1/+2/+3 attack bonus against standard buildings in the Feudal/Castle/Imperial Age.</li><li>Villagers have +5 attack against Wild Boars and carry +15 food from hunting.</li><li>Loom is free.</li><li>+10 population cap in the Imperial Age.</li></ul>");
-var TeamBonus = "Barracks work 20% faster."
+
+var civdet = civdetails.filter(function(d) {return d.Civ.includes(d3.event.srcElement.__data__.civ)});
+
+var focus = civdet.map(function(d) {return d.Focus});
+var CivUU = civdet.map(function(d) {return d.UU});
+var TeamBonus = civdet.map(function(d) {return d.TB});
 
 
-civtextdiv.style("left","850px").style("top", "670px").html("<b>Focus: </b>"+focus+"<br><br>"+"<b>Civilization Bonuses: </b>"+CivBonus+"<br>"+"<b>Team Bonus: </b>"+TeamBonus);
+civtextdiv.html("<b>"+d3.event.srcElement.__data__.civ+" "+"Civilization Details</b><br><br>"+"<b>Focus: </b>"+focus+"<br><br>"+"<b>Unique Unit: </b>"+CivUU+"<br><br>"+"<b>Team Bonus: </b>"+TeamBonus);
 
   }
 
 
-function mouseoutbar(d, i){
 
-        d3.select(this).style("stroke-width", 1);
-}
 
 
 
   var screenw = (screen.width-10);
   var width = 1500;
-  var heightsvg = 650;
+  var heightsvg = 700;
   var smargin = (screenw-width)/2;
   var tmargin = 50;
-  var widthpie = 250;
+  var widthpie = 300;
   var height = heightsvg - widthpie;
+  var heightbar = height + (tmargin*2);
 
-  if(d3.selectAll("svg").size()!=0){ d3.selectAll("svg").remove() };
 
   var svg = d3.select("body").append("svg")
+      .attr("id",  "winratesciv")
       .attr("width",  width+(smargin*2))
       .attr("height", heightsvg+(tmargin*2));
 
@@ -182,7 +263,7 @@ function mouseoutbar(d, i){
       .attr('y',function(d) {return y(0);})
       .attr('width',x.bandwidth())
       .attr('height',0)
-      .style("fill", function(d, i) {return color(i);})
+      .style("fill", function(d, i) {return color[i];})
       .style("stroke-width", 1);
 
   svg.append("g")
@@ -200,20 +281,15 @@ function mouseoutbar(d, i){
       .style("text-anchor", "start");
 
 
-  svg.selectAll("rect")
+  var barchartbars = svg.selectAll("rect")
     .transition()
     .duration(1000)
     .attr("y", function(d) {return y(d.winrate);})
     .attr("height", function(d,i) {return y(1-Number(d.winrate));})
 
-
-
-//function(d,i) {tooltip.style("opacity", 1).style("left", (d3.event.pageX)+"px").style("top", (d3.event.pageY)+"px").html(d.winrate);}
-
 //Pie chart
 
 
-var center = 150;
 var inrad = 50;
 var outrad = 100;
 var colorinit = ['grey','darkgrey'];
@@ -224,7 +300,7 @@ var arc = d3.arc().innerRadius(inrad).outerRadius(outrad);
 
 
 var groupspie = svg.append("g")
-    .attr("transform", "translate(550,650)")
+    .attr("transform", "translate(550,"+(heightbar+(tmargin)+outrad)+")")
     .selectAll("g")
     .data(pie([0.5, 0.5]))
     .enter()
@@ -258,10 +334,6 @@ svg.selectAll("rect")
    .on("mouseover", updatepie);
 
 
-svg.selectAll("rect")
-    .on("mouseout", mouseoutbar);
-
-
 groupspie.append("image")
     .attr("href", "https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/CivIcon-q.png")
     .attr("x", -50)
@@ -269,28 +341,64 @@ groupspie.append("image")
     .attr("height", "100px")
     .attr("width", "100px");
 
+svg.append("rect")
+.attr('x',10)
+.attr('y',1)
+.attr('width', 1899)
+.attr('height',799)
+.style("fill", "none")
+.style("stroke-width", 1.5);
 
-    civtextdiv.style("left","850px").style("top", "670px").html("<b>Focus: </b>"+"<br><br>"+"<b>Civilization Bonuses: </b>"+"<br>"+"<b>Team Bonus: </b>");
+svg.append("rect")
+.attr('x',10)
+.attr('y',525)
+.attr('width', 1899)
+.attr('height',274)
+.style("fill", "none")
+.style("stroke-width", 1.5);
+
+/*
+svg.append("rect")
+.attr('x',10)
+.attr('y',1)
+.attr('width', 1899)
+.attr('height',798)
+.style("fill", "white")
+.style("opacity", 0)
+.style("stroke-width", 1.5)
+.on("mouseup", demo);
+
+
+function demo(){
+
+  svg.selectAll("rect").style("stroke-width", 3)
+};*/
+
+    civtextdiv.style("left","850px").style("top", (heightbar+(tmargin)+outrad+50)+"px").html("<b>Civilization Details</b><br><br>"+"<b>Focus: ?</b>"+"<br><br>"+"<b>Unique Unit: ?</b>"+"<br><br>"+"<b>Team Bonus: ?</b>");
 
 };
 
 
 async function slide2(){
-            console.log("Slide2");
 
-            const pairsMatrix = await d3.csv("https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/PairsMatrixComplete.csv");
+document.getElementById("slideTitle").innerHTML = "Age of Empires 2: Definitive Edition - Civilization Pairing in Team Games";
+        const pairsMatrix = await d3.csv("https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/PairsMatrixComplete.csv");
+        const civdetails = await d3.csv("https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/CivTexts/civdetails.csv");
 
 
-        var margin      = {top: 10, right: 10, bottom: 10, left: 10};
-        var width       = 800 - margin.left - margin.right;
+        var margin      = {top: 10, right: 10, bottom: 10, left: 110};
+        var width       = 900 - margin.left - margin.right;
+        var widthsvg       = 1910;
         var height      = 800 - margin.top  - margin.bottom;
-        var innerRadius = width * .4;
+        var innerRadius = 300;
         var outerRadius = innerRadius * 1.05;
 
-        var svg = d3.select("body").append("svg")
-            .attr("width",  width  + margin.left + margin.right)
-            .attr("height", height + margin.top  + margin.bottom)
-            .append("g")
+        var svgf = d3.select("body").append("svg")
+            .attr("id",  "chordchart")
+            .attr("width",  widthsvg)
+            .attr("height", height + margin.top  + margin.bottom);
+
+        var svg = svgf.append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
             .append("g")
             .attr("class", "chordgraph")
@@ -327,7 +435,7 @@ async function slide2(){
 
 
         //set color scale. More color options: https://github.com/d3/d3-scale-chromatic
-        var color = d3.scaleOrdinal(d3.schemeTableau10)
+      //  var color = d3.scaleOrdinal(d3.schemeTableau10);
 
         //d3 chord generator
         var chord = d3.chord()
@@ -353,17 +461,25 @@ async function slide2(){
             .enter()
             .append("g");
 
+
         //add each outer rim arc path
         group.append("path")
-            .attr("fill", function(d){ return color(d.index); })
+            .attr("fill", function(d){ return color[d.index]; })
             .attr("d", arc)
             .style("cursor", "pointer")
-            .on("mouseover", function(d, i){
-                ribbons.classed("fade", function(d){
+            .on("mouseover", function (d, i){
+              civselection = civlist[i];
+                var counter = 0;
+                if(counter==0){
+                  updatetext(i);
+                }
+                counter++;
+                ribbons.classed("fade", function(d, j){
+
                     return d.source.index != i && d.target.index != i;
                 });
             });
-        console.log(chords);
+
         //add each ribbon
         var ribbons = svg.append("g")
           .attr("fill-opacity", .5)
@@ -372,7 +488,7 @@ async function slide2(){
           .enter()
           .append("path")
           .attr("d", ribbon)
-          .attr("fill", function(d){ return color(d.source.index); })
+          .attr("fill", function(d){ return color[d.source.index]; })
           .attr("stroke", "black")
           .style("stroke","Black")
           .style("stroke-width",".25px");
@@ -400,69 +516,184 @@ async function slide2(){
 
 
             window.addEventListener('mouseup', (e) => {
+              if(e.target.id === "chordchart"){
+                ribbons.classed("fade", false);
+                civtextdivteam.html("<b>Civilization Details</b><br><br>"
+                                                                               +"<b>Focus: ?</b>"+"<br><br>"+"<b>Unique Unit: ?</b>"+"<br><br>"+"<b>Team Bonus: ?</b>");
 
-              if(e.target.tagName == "svg");{
-                ribbons.classed("fade", false)
+                civtextdiv.html("<b>Most likely paired</b>"
+                                +"<br>?"
+                                +"<br>?"
+                                +"<br>?"
+                                +"<br><br><br><b>Least likely paired</b>"
+                                +"<br>?"
+                                +"<br>?"
+                                +"<br>?");
+                svgf.select("image")
+                    .attr("href", "https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/CivIcon-q.png");
               };
             })
-        };
+
+civtextdivteam.style("left","1000px")
+.style("text-align", "center")
+.style("width", "920px")
+.style("font-size", "18px")
+.style("top", "150px").html("<b>Civilization Details</b><br><br>"
+                            +"<b>Focus: ?</b>"+"<br><br>"+"<b>Unique Unit: ?</b>"+"<br><br>"+"<b>Team Bonus: ?</b>");
+
+
+svgf.append("image")
+    .attr("href", "https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/CivIcon-q.png")
+    .attr("x", 1350)
+    .attr("y", 220)
+    .attr("height", "200px")
+    .attr("width", "200px");
+
+civtextdiv.style("left","1050px")
+          .style("top", "630px").html("<b>Most likely paired</b>"
+                                      +"<br>?"
+                                      +"<br>?"
+                                      +"<br>?"
+                                      +"<br><br><br><b>Least likely paired</b>"
+                                      +"<br>?"
+                                      +"<br>?"
+                                      +"<br>?");
+
+
+svgf.append("rect")
+.attr('x',10)
+.attr('y',1)
+.attr('width', 990)
+.attr('height',798)
+.style("fill", "none")
+.style("stroke-width", 1.5);
+
+svgf.append("rect")
+.attr('x',1000)
+.attr('y',1)
+.attr('width', 909)
+.attr('height',450)
+.style("fill", "none")
+.style("stroke-width", 1.5);
+
+
+svgf.append("rect")
+.attr('x',1000)
+.attr('y',451)
+.attr('width', 909)
+.attr('height',348)
+.style("fill", "none")
+.style("stroke-width", 1.5);
+
+
+function updatetext(i){
+
+var selectwithindx = [];
+for (var j=0; j<matrix[i].length; j++) {
+  selectwithindx.push({"matches": matrix[i][j], "index": fc[j], "TeamBonus": civdetails.filter(function(d, i) { return i==j }).map(function(d) { return d.TB })});
+ };
+ selectwithindx = selectwithindx.sort(function(a, b){return b.matches -a.matches;});
+console.log(selectwithindx);
+
+var civdet = civdetails.filter(function(d) {return d.Civ.includes(fc[i])});
+var focus = civdet.map(function(d) {return d.Focus});
+var CivUU = civdet.map(function(d) {return d.UU});
+var TeamBonus = civdet.map(function(d) {return d.TB});
+
+civtextdivteam.html("<b>"+fc[i]+" Civilization Details</b><br><br>"
+                    +"<b>Focus: " +focus+ "</b>"+"<br><br>"+"<b>Unique Unit: " +CivUU+ "</b>"+"<br><br>"+"<b>Team Bonus: " +TeamBonus+ "</b>");
+
+svgf.select("image")
+    .attr("href", "https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/Icons/CivIcon-" + fc[i] + ".png");
+
+  civtextdiv.html("<b>Most likely paired</b>"
+                  +"<br><b>"+selectwithindx.filter(function(d, i) { if(i==0) { return d } }).map(function(d, i) { return d.index })+"</b> with "
+                  +selectwithindx.filter(function(d, i) { if(i==0) { return d } }).map(function(d, i) { return d.matches }) + " matches"
+                  +" - Team Bonus: "+selectwithindx.filter(function(d, i) { return i==0 } ).map(function(d, i) { return d.TeamBonus })
+                  +"<br><b>"+selectwithindx.filter(function(d, i) { if(i==1) { return d } }).map(function(d, i) { return d.index })+"</b> with "
+                  +selectwithindx.filter(function(d, i) { if(i==1) { return d } }).map(function(d, i) { return d.matches }) + " matches"
+                  +" - Team Bonus: "+selectwithindx.filter(function(d, i) { return i==1 } ).map(function(d, i) { return d.TeamBonus })
+                  +"<br><b>"+selectwithindx.filter(function(d, i) { if(i==2) { return d } }).map(function(d, i) { return d.index })+"</b> with "
+                  +selectwithindx.filter(function(d, i) { if(i==2) { return d } }).map(function(d, i) { return d.matches }) + " matches"
+                  +" - Team Bonus: "+selectwithindx.filter(function(d, i) { return i==2 } ).map(function(d, i) { return d.TeamBonus })
+                  +"<br><br><br><b>Least likely paired</b>"
+                  +"<br><b>"+selectwithindx.filter(function(d, i) { if(i==34) { return d } }).map(function(d, i) { return d.index })+"</b> with "
+                  +selectwithindx.filter(function(d, i) { if(i==34) { return d } }).map(function(d, i) { return d.matches }) + " matches"
+                  +" - Team Bonus: "+selectwithindx.filter(function(d, i) { return i==34 } ).map(function(d, i) { return d.TeamBonus })
+                  +"<br><b>"+selectwithindx.filter(function(d, i) { if(i==33) { return d } }).map(function(d, i) { return d.index })+"</b> with "
+                  +selectwithindx.filter(function(d, i) { if(i==33) { return d } }).map(function(d, i) { return d.matches }) + " matches"
+                  +" - Team Bonus: "+selectwithindx.filter(function(d, i) { return i==33 } ).map(function(d, i) { return d.TeamBonus })
+                  +"<br><b>"+selectwithindx.filter(function(d, i) { if(i==32) { return d } }).map(function(d, i) { return d.index })+"</b> with "
+                  +selectwithindx.filter(function(d, i) { if(i==32) { return d } }).map(function(d, i) { return d.matches }) + " matches"
+                  +" - Team Bonus: "+selectwithindx.filter(function(d, i) { return i==32 } ).map(function(d, i) { return d.TeamBonus }));
+
+};
+
+};
 
 
 async function slide3(){
 
-console.log("Slide3");
+document.getElementById("slideTitle").innerHTML = "Age of Empires 2: Definitive Edition - Civilization Pairing Winrate in Team Games";
+
 const winrateciv = await d3.csv('https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/winrate_civ.csv');
  const data = await d3.csv('https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/data_matches_formatted_reduced.csv');
- const civ1WD = data.filter(function(d) {return d.teamcivs.includes("Slavs")})
-  console.log(civ1WD);
+ const civ1WD = data.filter(function(d) {return d.teamcivs.includes(civselection)});
+ const civdetails = await d3.csv("https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/CivTexts/civdetails.csv");
+
 
 var  civlist = winrateciv.map(function(d) {return d.civ});
 var  winrates = winrateciv.map(function(d) {return d.winrate});
+//var color = d3.scaleOrdinal(d3.schemeTableau10);
+
 
 
   var i;
   var PairWins = [];
   var PairMatches = [];
   var PairWinrates = [];
-  var CurrCiv = "Slavs";
-  var nodes = [{"value": "Selection"}];
+  var nodes = [{"value": (" "+civselection+" ")}];
   var links = [];
 
   for (i = 0; i < civlist.length; i++) {
-    if (civlist[i] == CurrCiv) {
+
+    if (civlist[i] == civselection) {
       var civ2WD = civ1WD.filter(function(d) { if(d.teamcivs.indexOf(civlist[i]) != d.teamcivs.lastIndexOf(civlist[i])) {return d.teamcivs} });
+      if(civ2WD.length>0){
       nodes.push({"value": civlist[i]});
-      links.push({"source":  "Selection", "target":  civlist[i], "winrate": ((d3.sum(civ2WD, function(d) { return d.won }))/civ2WD.length)});
+      links.push({"source":  (" "+civselection+" "), "target":  civlist[i], "winrate": ((d3.sum(civ2WD, function(d) { return d.won }))/civ2WD.length)});
+      };
     }
     else {
       var civ2WD = civ1WD.filter(function(d) {return d.teamcivs.includes(civlist[i])});
+      if(civ2WD.length>0){
       nodes.push({"value": civlist[i]});
-      links.push({"source":  "Selection", "target":  civlist[i], "winrate": ((d3.sum(civ2WD, function(d) { return d.won }))/civ2WD.length)});
+      links.push({"source":  (" "+civselection+" "), "target":  civlist[i], "winrate": ((d3.sum(civ2WD, function(d) { return d.won }))/civ2WD.length)});
+      };
     };
 
     var PairWin = d3.sum(civ2WD, function(d) { return d.won });
     PairWins.push(PairWin);
     PairMatches.push(civ2WD.length);
-    PairWinrates.push(PairWin/civ2WD.length)
+    PairWinrates.push({"civpair": civlist[i], "winrate": PairWin/civ2WD.length, "matches": civ2WD.length, "TeamBonus": civdetails.filter(function(d, k) { return k==i }).map(function(d) { return d.TB })})
   };
 
-console.log(PairWinrates);
+
 var width = 1000;
-var height = 700;
-var radius = 30;
-var margin = 5;
+var height = 800;
+var widthsvg = 1910;
+var radius = 35;
+var margin = 10;
 var svg = d3.select("body").append("svg")
-    .attr("width",  width)
+    .attr("id",  "nodechart")
+    .attr("width",  widthsvg)
     .attr("height", height);
 
-var svg = d3.select("svg"),
-width = +svg.attr("width"),
-height = +svg.attr("height");
 
 var simulation = d3.forceSimulation()
-.force("link", d3.forceLink().distance(function(d) { /*return 400-(d.winrate*400)*/if(d.winrate==0) { return 400 } else {return (Math.abs(Math.log(d.winrate)))*250 };})
+.force("link", d3.forceLink().distance(function(d) { return 400-(d.winrate*400)/*if(d.winrate==0) { return 400 } else {return (Math.abs(Math.log(d.winrate)))*250 };*/})
     .id(function(d) { return d.value;}))
-.force("charge", d3.forceManyBody())
+.force("charge", d3.forceManyBody().strength(-1000))
 .force("center", d3.forceCenter(width / 2, height / 2));
 
 
@@ -487,11 +718,14 @@ var nodesel = svg.selectAll(".node")
       .on("end", dragended));
 
 nodesel.append("circle")
-.attr("r",radius);
+.attr("r",radius)
+.style("fill",function(d, i) {if(i==0){return "#000000"} else{ return color[i-1] } } );
 
 nodesel.append("text")
 .attr("transform","translate(0,4)")
-.text(function (d) { return d.value; });
+.text(function (d) { return d.value; })
+.style("fill", function (d, i) { if(i==0){return "white"; } else {return txtcolor[i-1]}})
+.style("pointer-events","none");
 
 // replace "tick" with "end" for static layout
 simulation.on("tick", ticked);
@@ -499,7 +733,7 @@ simulation.on("tick", ticked);
 function ticked() {
 
 
-nodesel.attr("cx", function(d) { return d.x = Math.max(radius + margin, Math.min(width - radius - margin, d.x)); })
+  nodesel.attr("cx", function(d) { return d.x = Math.max(radius + margin, Math.min(width - radius - margin, d.x)); })
         .attr("cy", function(d) { return d.y = Math.max(radius + margin, Math.min(height - radius - margin, d.y)); });
 
         linksel.attr("x1", function(d) { return d.source.x; })
@@ -508,7 +742,7 @@ nodesel.attr("cx", function(d) { return d.x = Math.max(radius + margin, Math.min
             .attr("y2", function(d) { return d.target.y; });
 
             nodesel.attr("transform", function(d) {
-                return "translate(" + d.x + "," + d.y + ")";
+              return "translate(" + d.x + "," + d.y + ")";
             });
 }
 
@@ -526,70 +760,114 @@ if (!d3.event.active) simulation.alphaTarget(0);
 d.fx = null;
 d.fy = null;
 }
+
+PairWinrates = PairWinrates.sort(function(a, b){return b.winrate -a.winrate;});
+console.log(PairWinrates);
+civtextdiv.style("left","1050px").style("top", "580px").html("<b>Most likely pair to win</b>"
+                                                            +"<br><b>"+PairWinrates.filter(function(d, i) { if(i==0) { return d } }).map(function(d, i) { return d.civpair })
+                                                            +"</b> - Winrate: "+PairWinrates.filter(function(d, i) { if(i==0) { return d } }).map(function(d, i) { return (d.winrate*100).toFixed(1); })+"%"
+                                                            +" on "+PairWinrates.filter(function(d, i) { if(i==0) { return d } }).map(function(d, i) { return d.matches })+" matches"
+                                                            +" - Team Bonus: "+PairWinrates.filter(function(d, i) { return i==0 } ).map(function(d, i) { return d.TeamBonus })
+                                                            +"<br><b>"+PairWinrates.filter(function(d, i) { if(i==1) { return d } }).map(function(d, i) { return d.civpair })
+                                                            +"</b> - Winrate: "+PairWinrates.filter(function(d, i) { if(i==1) { return d } }).map(function(d, i) { return (d.winrate*100).toFixed(1); })+"%"
+                                                            +" on "+PairWinrates.filter(function(d, i) { if(i==1) { return d } }).map(function(d, i) { return d.matches })+" matches"
+                                                            +" - Team Bonus: "+PairWinrates.filter(function(d, i) { return i==1 } ).map(function(d, i) { return d.TeamBonus })
+                                                            +"<br><b>"+PairWinrates.filter(function(d, i) { if(i==2) { return d } }).map(function(d, i) { return d.civpair })
+                                                            +"</b> - Winrate: "+PairWinrates.filter(function(d, i) { if(i==2) { return d } }).map(function(d, i) { return (d.winrate*100).toFixed(1); })+"%"
+                                                            +" on "+PairWinrates.filter(function(d, i) { if(i==2) { return d } }).map(function(d, i) { return d.matches })+" matches"
+                                                            +" - Team Bonus: "+PairWinrates.filter(function(d, i) { return i==2 } ).map(function(d, i) { return d.TeamBonus })
+                                                            +"<br><br><br><b>Least likely pair to lose</b>"
+                                                            +"<br><b>"+PairWinrates.filter(function(d, i) { if(i==34) { return d } }).map(function(d, i) { return d.civpair })
+                                                            +"</b> - Winrate: "+PairWinrates.filter(function(d, i) { if(i==34) { return d } }).map(function(d, i) { return (d.winrate*100).toFixed(1); })+"%"
+                                                            +" on "+PairWinrates.filter(function(d, i) { if(i==34) { return d } }).map(function(d, i) { return d.matches })+" matches"
+                                                            +" - Team Bonus: "+PairWinrates.filter(function(d, i) { return i==34 } ).map(function(d, i) { return d.TeamBonus })
+                                                            +"<br><b>"+PairWinrates.filter(function(d, i) { if(i==33) { return d } }).map(function(d, i) { return d.civpair })
+                                                            +"</b> - Winrate: "+PairWinrates.filter(function(d, i) { if(i==33) { return d } }).map(function(d, i) { return (d.winrate*100).toFixed(1); })+"%"
+                                                            +" on "+PairWinrates.filter(function(d, i) { if(i==33) { return d } }).map(function(d, i) { return d.matches })+" matches"
+                                                            +" - Team Bonus: "+PairWinrates.filter(function(d, i) { return i==33 } ).map(function(d, i) { return d.TeamBonus })
+                                                            +"<br><b>"+PairWinrates.filter(function(d, i) { if(i==32) { return d } }).map(function(d, i) { return d.civpair })
+                                                            +"</b> - Winrate: "+PairWinrates.filter(function(d, i) { if(i==32) { return d } }).map(function(d, i) { return (d.winrate*100).toFixed(1); })+"%"
+                                                            +" on "+PairWinrates.filter(function(d, i) { if(i==32) { return d } }).map(function(d, i) { return d.matches })+" matches"
+                                                            +" - Team Bonus: "+PairWinrates.filter(function(d, i) { return i==32 } ).map(function(d, i) { return d.TeamBonus })
+                                                          );
+
+
+var iconsel = svg.selectAll(".icon")
+              .data(civlist)
+              .enter()
+              .append("g")
+                .attr("class", "icon");
+
+iconsel.append("image")
+       .attr("href", function(d, i) {return "https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/Icons/CivIcon-"+civlist[i]+".png"})
+       .attr("height", "50px")
+       .attr("width", "50px");
+
+iconsel.append("text")
+       .attr("transform","translate(22,-5)")
+       .text(function(d, i) {return civlist[i]})
+       .style("font-size","15px");
+
+iconsel.append("rect")
+        .attr("transform","translate(-28,-20)")
+        .attr('class', 'imgborder')
+        .attr("id", function(d, i) {return civlist[i]})
+        .attr('width', 100)
+        .attr('height', 80)
+        .on("mouseup", iconclicked);
+
+iconsel.attr("transform", function(d, i) {
+  return "translate(" + (1080+((i%8)*100)) + "," + (50+(((Math.floor(i/8))%8)*80)) + ")";
+});
+
+iconsel.select("#"+civselection)
+        .style("stroke", "black");
+
+console.log(civdetails.filter(function(d) { return d.Civ==civselection } ));
+civtextdivteam.style("left","1380px")
+.style("top", "490px")
+.style("text-align", "left")
+.style("width", "500px")
+.style("font-size", "16px").html("<b>Focus: </b>"+civdetails.filter(function(d) { return d.Civ==civselection } ).map(function(d) { return d.Focus })
+                                +"<br><b>Team Bonus: </b>"+civdetails.filter(function(d) { return d.Civ==civselection } ).map(function(d) { return d.TB })
+                                );
+
+
+
+
+svg.append("rect")
+.attr('x',10)
+.attr('y',1)
+.attr('width', 990)
+.attr('height',798)
+.style("fill", "none")
+.style("stroke-width", 1.5);
+
+svg.append("rect")
+.attr('x',1000)
+.attr('y',1)
+.attr('width', 909)
+.attr('height',450)
+.style("fill", "none")
+.style("stroke-width", 1.5);
+
+
+svg.append("rect")
+.attr('x',1000)
+.attr('y',451)
+.attr('width', 909)
+.attr('height',348)
+.style("fill", "none")
+.style("stroke-width", 1.5);
+
+function iconclicked(){
+
+    civselection = d3.event.srcElement.id;
+    Press3();
 };
 
 
-/* start histo combined
- const civ1WD = data.filter(function(d) {return d.teamcivs.includes("Britons")})
-  console.log(civ1WD);
-
-  var i;
-  var PairWins = [];
-  var PairMatches = [];
-  var PairWinrates = [];
-  var CurrCiv = "Britons";
-
-  for (i = 0; i < civlist.length; i++) {
-    if (civlist[i] == CurrCiv) {
-      var civ2WD = civ1WD.filter(function(d) { if(d.teamcivs.indexOf(civlist[i]) != d.teamcivs.lastIndexOf(civlist[i])) {return d.teamcivs} });
-    }
-    else {
-      var civ2WD = civ1WD.filter(function(d) {return d.teamcivs.includes(civlist[i])});
-    };
-
-    var PairWin = d3.sum(civ2WD, function(d) { return d.won });
-    PairWins.push(PairWin);
-    PairMatches.push(civ2WD.length);
-    PairWinrates.push(PairWin/civ2WD.length)
-  };
-
-
-  var width = 500
-  var height = 500
-  var margin = 50
-
-  x = d3.scaleBand().domain(civlist).range([0,width]);
-  y = d3.scaleLinear().domain([0,1]).range([height,0]);
-  d3.select('svg')
-    .append("g")
-      .attr("transform", "translate("+margin+","+margin+")")
-    .selectAll('rect')
-    .data(PairWinrates)
-    .enter()
-    .append('rect')
-      .attr('x',function(d,i) {return x(civlist[i]);})
-      .attr('y',function(d) {return y(d);})
-      .attr('width',x.bandwidth())
-      .attr('height',function(d) {return y(1-Number(d));})
-
-  d3.select('svg')
-    .append("g")
-      .attr("transform", "translate("+margin+","+margin+")")
-      .call(d3.axisLeft(y))
-
-  d3.select('svg')
-    .append("g")
-      .attr("transform", "translate("+margin+","+(height+margin)+")")
-      .call(d3.axisBottom(x))
-      .selectAll("text")
-      .attr("y", 0)
-      .attr("x", 9)
-      .attr("dy", ".35em")
-      .attr("transform", "rotate(90)")
-      .style("text-anchor", "start");
-
-end histo combined */
-
+};
 
 </script>
 </body>
