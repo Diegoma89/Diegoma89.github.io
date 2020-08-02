@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<script src='https://d3js.org/d3.v5.min.js'></script>
+<script src="https://d3js.org/d3.v5.min.js"></script>
 <style>
 
 body {
@@ -78,18 +78,17 @@ path.fade{ display: none;}
 .slides {
   border-radius: 4px;
   padding: 2px 10px;
-  text-align: center;
+  text-anchor: center;
   font-size: 16px;
   float: left;
 }
 
-.storytext text
+.storytext
 {
-  position: absolute;
-  text-align: center;
-   word-wrap: break-word;
-   width: 350px;
-   font-size: 18px;
+   position: absolute;
+   text-anchor: middle;
+   width: 100px;
+   font-size: 20px;
 }
 
 div.tooltip {
@@ -121,7 +120,7 @@ div.tooltip {
 }
 
 </style>
-<body onload='init()'>
+<body onload="init()">
 
 <h1 id="slideTitle"></h1>
 
@@ -196,14 +195,15 @@ function rotate(angle){
 async function Slide1() {
 
 document.getElementById("slideTitle").innerHTML = "Age of Empires 2: Definitive Edition - Winrate by Civilization in Team Games";
-console.log(story);
-  const winrateciv = await d3.csv('https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/winrate_civ.csv');
+
+  const winrateciv = await d3.csv("https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/winrate_civ.csv");
   const civdetails = await d3.csv("https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/CivTexts/civdetails.csv");
 
   //var color = d3.scaleOrdinal(d3.schemeTableau10);
 
   civlist = winrateciv.map(function(d) {return d.civ});
   winrates = winrateciv.map(function(d) {return d.winrate});
+  winrateMean = d3.mean(winrateciv.map(function(d){return d.winrate}));
 
 
   function updatepie(d, i){
@@ -250,7 +250,6 @@ console.log(story);
 
                })
                .text(function(d,i) {if(i==0) { return (barselection.winrate*100).toFixed(1)+"%"} else {return ((1-barselection.winrate)*100).toFixed(1)+"%"};})
-               .style("font-family","sans-serif")
                .style("font-size","15px")
                .style("font-weight","bold");
 
@@ -267,7 +266,7 @@ civtextdiv.html("<b>"+barselection.civ+" "+"Civilization Details</b><br><br>"+"<
   }
 
 
-  var screenw = (screen.width-10);
+  var screenw = (1920-10);
   var width = 1500;
   var heightsvg = 700;
   var smargin = (screenw-width)/2;
@@ -290,18 +289,63 @@ civtextdiv.html("<b>"+barselection.civ+" "+"Civilization Details</b><br><br>"+"<
 var barchartbars = svg.append("g")
       .attr("transform", "translate("+smargin+","+tmargin+")");
 
-    barchartbars.selectAll('rect')
+    barchartbars.selectAll("rect")
     .data(winrateciv)
     .enter()
-    .append('rect')
-      .attr('class',function(d) {return d.civ;})
-      .attr('id',function(d) {return d.civ;})
-      .attr('x',function(d) {return x(d.civ);})
-      .attr('y',function(d) {return y(0);})
-      .attr('width',x.bandwidth())
-      .attr('height',0)
+    .append("rect")
+      .attr("class",function(d) {return d.civ;})
+      .attr("id",function(d) {return d.civ;})
+      .attr("x",function(d) {return x(d.civ);})
+      .attr("y",function(d) {return y(0);})
+      .attr("width",x.bandwidth())
+      .attr("height",0)
       .style("fill", function(d, i) {return color[i];})
       .style("stroke-width", 0.5);
+
+var annotations = svg.append("g")
+                      .attr("transform", "translate("+smargin+","+tmargin+")");
+
+
+  annotations.selectAll("line")
+    .data([winrateMean,0.5])
+    .enter()
+      .append("line")
+      .transition()
+      .duration(1000)
+      .attr("x1", 0)
+      .attr("y1", function(d){return y(d);})
+      .attr("x2", width)
+      .attr("y2", function(d){return y(d);})
+      .attr("stroke", function(d, i){if(i==0){return "red";}else{return "black"}})
+      .attr("stroke-width", 2)
+      .style("stroke-dasharray","5,5");
+
+var barlegend = svg.append("g")
+                   .attr("transform", "translate("+(smargin+width)+","+tmargin+")");
+
+barlegend.selectAll("line")
+         .data(["Average", "50%: Positive winrate"])
+         .enter()
+         .append("line")
+            .attr("x1", 0)
+            .attr("y1", function(d, i){return 20*i;})
+            .attr("x2", 30)
+            .attr("y2", function(d, i){return 20*i;})
+            .attr("stroke", function(d, i){if(i==0){return "red";}else{return "black"}})
+            .attr("stroke-width", 2)
+            .style("stroke-dasharray","5,5");
+
+barlegend.selectAll("text")
+         .data(["Average", "50%: Positive winrate"])
+         .enter()
+         .append("text")
+            .attr("x",40)
+            .attr("y", function(d, i){return 5+(20*i);})
+            .text(function(d){return d;})
+            .style("font-size", "12px")
+            .style("pointer-events", "none")
+            .style("font-weight", "bold");
+
 
   svg.append("g")
       .attr("transform", "translate("+smargin+","+tmargin+")")
@@ -330,8 +374,8 @@ var barchartbars = svg.append("g")
 
 var inrad = 50;
 var outrad = 100;
-var colorinit = ['grey','darkgrey'];
-//var color = ['green','red'];
+var colorinit = ["grey","darkgrey"];
+//var color = ["green","red"];
 var pie = d3.pie().sort(null);
 var arc = d3.arc().innerRadius(inrad).outerRadius(outrad);
 
@@ -379,18 +423,18 @@ groupspie.append("image")
     .attr("width", "100px");
 
 svg.append("rect")
-.attr('x',10)
-.attr('y',1)
-.attr('width', 1899)
-.attr('height',799)
+.attr("x",10)
+.attr("y",1)
+.attr("width", 1899)
+.attr("height",799)
 .style("fill", "none")
 .style("stroke-width", 1.5);
 
 svg.append("rect")
-.attr('x',10)
-.attr('y',525)
-.attr('width', 1899)
-.attr('height',274)
+.attr("x",10)
+.attr("y",525)
+.attr("width", 1899)
+.attr("height",274)
 .style("fill", "none")
 .style("stroke-width", 1.5);
 
@@ -407,24 +451,24 @@ if(story == 1){
 
   var pageblock = svg.append("rect");
 
-  pageblock.attr('x',10)
-  .attr('y',1)
-  .attr('width', 1899)
-  .attr('height',798)
+  pageblock.attr("x",10)
+  .attr("y",1)
+  .attr("width", 1899)
+  .attr("height",798)
   .style("fill", "white")
   .style("opacity", 0.6)
   .style("stroke-width", 1.5);
 
 var storybox = svg.append("g")
-.attr("transform", "translate(800,20)");
+                  .attr("transform", "translate(800,20)");
 
   storybox.append("rect")
   .attr("rx", 20)
   .attr("ry", 20)
-  .attr('width', 400)
-  .attr('height',200)
+  .attr("width", 400)
+  .attr("height",200)
   .style("fill", "lightgray")
-  .style("opacity", 0.8)
+  .style("opacity", 0)
   .style("stroke-width", 1.5);
 
 
@@ -432,9 +476,10 @@ var storybox = svg.append("g")
   .data(storytextarray)
   .enter()
     .append("text")
-    .style("font-size", "20px");
+    .style("opacity", 0)
+    .attr("class", "storytext")
+    .attr("x", "200");
 
-    updatestorytext();
 
 
   var storyboxbtn = svg.append("g")
@@ -443,20 +488,23 @@ var storybox = svg.append("g")
   storyboxbtn.append("rect")
   .attr("rx", 10)
   .attr("ry", 10)
-  .attr('width', 100)
-  .attr('height',40)
+  .attr("width", 100)
+  .attr("height",40)
   .style("fill", "white")
-  .style("opacity", 0.8)
+  .style("opacity", 0)
   .style("stroke-width", 1);
 
   storyboxbtn.append("text")
-  .text("Continue")
   .style("font-size", "16px")
   .style("pointer-events", "none")
-  .attr('x',8)
-  .attr('y',25);
+  .style("opacity", 0)
+  .attr("x",8)
+  .attr("y",25);
 
   storyboxbtn.on("mouseup", storyshow);
+
+
+  updatestorytext();
 
 
 }; //Story mode
@@ -464,10 +512,32 @@ var storybox = svg.append("g")
 function updatestorytext(){
 
   storybox.selectAll("text")
-  .data(storytextarray)
-    .text(function(d){return d})
-    .attr("x", "10")
-    .attr("y", function(d, i) {return 30+(i*25)} );
+             .style("opacity", 0);
+
+
+  storybox.selectAll("rect")
+          .transition()
+          .duration(1000)
+          .style("opacity", 0.8);
+
+  storybox.selectAll("text")
+          .data(storytextarray)
+          .text(function(d){return d})
+          .attr("y", function(d, i) {return 30+(i*25)} )
+          .transition()
+          .duration(1000)
+          .style("opacity", 0.8);
+
+  storyboxbtn.selectAll("rect")
+             .transition()
+             .duration(1000)
+             .style("opacity", 0.8);
+
+  storyboxbtn.selectAll("text")
+          .text("Continue")
+          .transition()
+          .duration(1000)
+          .style("opacity", 0.8);
 
 }
 
@@ -481,22 +551,36 @@ function storyshow(){
   storytextarray = ["Let's have a look at Mayans.", "", "They focus on archers and their", "winrate is above average at 53.1%", ""];
   updatestorytext();
 
-  svg.append("rect")
-     .attr('x',655)
-     .attr('y',630)
-     .attr('width', 50)
-     .attr('height',30)
+var annotRL = svg.append("g");
+
+  annotRL.append("rect")
+     .attr("x",655)
+     .attr("y",630)
+     .attr("width", 60)
+     .attr("height",30)
      .style("fill", "none")
-     .style("stroke-width", 2);
+     .style("stroke-width", 2)
+     .style("opacity", 0);
 
 
-     svg.append('line')
-       .attr('x1', 705)
-       .attr('y1', 630)
-       .attr('x2', 800)
-       .attr('y2', 200)
-       .attr('stroke', 'black')
-       .attr('stroke-width', 2);
+annotRL.append("line")
+       .attr("x1", 800)
+       .attr("y1", 200)
+       .attr("x2", 705)
+       .attr("y2", 630)
+       .attr("stroke", "black")
+       .attr("stroke-width", 2)
+       .style("opacity", 0);
+
+ annotRL.selectAll("rect")
+          .transition()
+          .duration(1000)
+          .style("opacity", 1);
+
+annotRL.selectAll("line")
+         .transition()
+         .duration(1000)
+         .style("opacity", 1);
 
 
 
@@ -549,7 +633,7 @@ document.getElementById("slideTitle").innerHTML = "Age of Empires 2: Definitive 
             matrix  = [];
 
         for(var i=0; i < mat_size; i++){
-            matrix.push(new Array(mat_size+1).join('0').split('').map(parseFloat));
+            matrix.push(new Array(mat_size+1).join("0").split("").map(parseFloat));
         }
 
         for(var i=0; i < mat_size; i++){
@@ -648,7 +732,7 @@ document.getElementById("slideTitle").innerHTML = "Age of Empires 2: Definitive 
 
 
 
-            window.addEventListener('mouseup', (e) => {
+            window.addEventListener("mouseup", (e) => {
               if(e.target.id === "chordchart"){
                 ribbons.classed("fade", false);
                 civtextdivteam.html("<b>Civilization Details</b><br><br>"
@@ -694,27 +778,27 @@ civtextdiv.style("left","1050px")
 
 
 svgf.append("rect")
-.attr('x',10)
-.attr('y',1)
-.attr('width', 990)
-.attr('height',798)
+.attr("x",10)
+.attr("y",1)
+.attr("width", 990)
+.attr("height",798)
 .style("fill", "none")
 .style("stroke-width", 1.5);
 
 svgf.append("rect")
-.attr('x',1000)
-.attr('y',1)
-.attr('width', 909)
-.attr('height',450)
+.attr("x",1000)
+.attr("y",1)
+.attr("width", 909)
+.attr("height",450)
 .style("fill", "none")
 .style("stroke-width", 1.5);
 
 
 svgf.append("rect")
-.attr('x',1000)
-.attr('y',451)
-.attr('width', 909)
-.attr('height',348)
+.attr("x",1000)
+.attr("y",451)
+.attr("width", 909)
+.attr("height",348)
 .style("fill", "none")
 .style("stroke-width", 1.5);
 
@@ -778,10 +862,10 @@ updatetext(23);
 
 
   svgf.append("rect")
-  .attr('x',10)
-  .attr('y',1)
-  .attr('width', 1899)
-  .attr('height',798)
+  .attr("x",10)
+  .attr("y",1)
+  .attr("width", 1899)
+  .attr("height",798)
   .style("fill", "white")
   .style("opacity", 0)
   .style("stroke-width", 1.5);
@@ -792,8 +876,8 @@ var storybox = svgf.append("g")
   storybox.append("rect")
   .attr("rx", 20)
   .attr("ry", 20)
-  .attr('width', 400)
-  .attr('height',200)
+  .attr("width", 400)
+  .attr("height",200)
   .style("fill", "lightgray")
   .style("opacity", 0.8)
   .style("stroke-width", 1.5);
@@ -803,7 +887,7 @@ var storybox = svgf.append("g")
   .data(storytextarray)
   .enter()
     .append("text")
-    .style("font-size", "20px");
+    .attr("class", "storytext");
 
     updatestorytext();
 
@@ -814,8 +898,8 @@ var storybox = svgf.append("g")
   storyboxbtn.append("rect")
   .attr("rx", 10)
   .attr("ry", 10)
-  .attr('width', 100)
-  .attr('height',40)
+  .attr("width", 100)
+  .attr("height",40)
   .style("fill", "white")
   .style("opacity", 0.8)
   .style("stroke-width", 1);
@@ -824,37 +908,39 @@ var storybox = svgf.append("g")
   .text("Continue")
   .style("font-size", "16px")
   .style("pointer-events", "none")
-  .attr('x',8)
-  .attr('y',25);
+  .attr("x",8)
+  .attr("y",25);
 
   storyboxbtn.on("mouseup", storyshow);
 
 
   svgf.append("rect")
-     .attr('x',1350)
-     .attr('y',70)
-     .attr('width', 210)
-     .attr('height',30)
+     .attr("x",1350)
+     .attr("y",70)
+     .attr("width", 210)
+     .attr("height",30)
      .style("fill", "yellow")
-     .style("opacity", "0.5")
-     .style("stroke-width", 2);
+     .style("opacity", 0)
+     .style("stroke-width", 2)
+     .transition()
+     .duration(2000)
+     .style("opacity", 0.5);
 
 
-     svgf.append('rect')
-       .attr('x', 1315)
-       .attr('y', 480)
-       .attr('width', 560)
-       .attr('height',30)
+
+
+
+     svgf.append("rect")
+       .attr("x", 1030)
+       .attr("y", 460)
+       .attr("width", 870)
+       .attr("height",140)
        .style("fill", "yellow")
-       .style("opacity", "0.5");
+       .style("opacity", 0)
+       .transition()
+       .duration(2000)
+       .style("opacity", 0.5);
 
-       svgf.append('rect')
-         .attr('x', 1045)
-         .attr('y', 500)
-         .attr('width', 130)
-         .attr('height',30)
-         .style("fill", "yellow")
-         .style("opacity", "0.5");
 
 
 }; //Story mode
@@ -862,17 +948,23 @@ var storybox = svgf.append("g")
 function updatestorytext(){
 
   storybox.selectAll("text")
+             .style("opacity", 0);
+
+  storybox.selectAll("text")
   .data(storytextarray)
     .text(function(d){return d})
-    .attr("x", "10")
-    .attr("y", function(d, i) {return 30+(i*25)} );
+    .attr("x", "200")
+    .attr("y", function(d, i) {return 30+(i*25)} )
+    .transition()
+    .duration(1000)
+    .style("opacity", 1);
 
 }
 
 
 function storyshow(){
 
-  storytextarray = ["They do very well togheter!", "", "Teaming up increased mayans", "individual winrate of 53.1% to ", "61.3% when paired with Britons."];
+  storytextarray = ["They do very well together!", "", "Teaming up increased mayans", "individual winrate of 53.1% to ", "61.3% when paired with Britons."];
   Press3();
 };
 
@@ -883,8 +975,8 @@ async function slide3(){
 
 document.getElementById("slideTitle").innerHTML = "Age of Empires 2: Definitive Edition - Civilization Pairing Winrate in Team Games";
 
-const winrateciv = await d3.csv('https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/winrate_civ.csv');
- const data = await d3.csv('https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/data_matches_formatted_reduced.csv');
+const winrateciv = await d3.csv("https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/winrate_civ.csv");
+ const data = await d3.csv("https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/data_matches_formatted_reduced.csv");
  const civ1WD = data.filter(function(d) {return d.teamcivs.includes(civselection)});
  const civdetails = await d3.csv("https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/CivTexts/civdetails.csv");
 
@@ -1077,10 +1169,10 @@ iconsel.append("text")
 
 iconsel.append("rect")
         .attr("transform","translate(-28,-20)")
-        .attr('class', 'imgborder')
+        .attr("class", "imgborder")
         .attr("id", function(d, i) {return civlist[i]})
-        .attr('width', 100)
-        .attr('height', 80)
+        .attr("width", 100)
+        .attr("height", 80)
         .on("mouseup", iconclicked);
 
 iconsel.attr("transform", function(d, i) {
@@ -1103,27 +1195,27 @@ civtextdivteam.style("left","1380px")
 
 
 svg.append("rect")
-.attr('x',10)
-.attr('y',1)
-.attr('width', 990)
-.attr('height',798)
+.attr("x",10)
+.attr("y",1)
+.attr("width", 990)
+.attr("height",798)
 .style("fill", "none")
 .style("stroke-width", 1.5);
 
 svg.append("rect")
-.attr('x',1000)
-.attr('y',1)
-.attr('width', 909)
-.attr('height',450)
+.attr("x",1000)
+.attr("y",1)
+.attr("width", 909)
+.attr("height",450)
 .style("fill", "none")
 .style("stroke-width", 1.5);
 
 
 svg.append("rect")
-.attr('x',1000)
-.attr('y',451)
-.attr('width', 909)
-.attr('height',348)
+.attr("x",1000)
+.attr("y",451)
+.attr("width", 909)
+.attr("height",348)
 .style("fill", "none")
 .style("stroke-width", 1.5);
 
@@ -1138,10 +1230,10 @@ if(story == 1){
 
 counter = 0;
   svg.append("rect")
-  .attr('x',10)
-  .attr('y',1)
-  .attr('width', 1899)
-  .attr('height',798)
+  .attr("x",10)
+  .attr("y",1)
+  .attr("width", 1899)
+  .attr("height",798)
   .style("fill", "white")
   .style("opacity", 0)
   .style("stroke-width", 1.5);
@@ -1152,8 +1244,8 @@ var storybox = svg.append("g")
   storybox.append("rect")
   .attr("rx", 20)
   .attr("ry", 20)
-  .attr('width', 400)
-  .attr('height',200)
+  .attr("width", 400)
+  .attr("height",200)
   .style("fill", "lightgray")
   .style("opacity", 0.8)
   .style("stroke-width", 1.5);
@@ -1163,7 +1255,7 @@ var storybox = svg.append("g")
   .data(storytextarray)
   .enter()
     .append("text")
-    .style("font-size", "20px");
+    .attr("class", "storytext");
 
     updatestorytext();
 
@@ -1174,8 +1266,8 @@ var storybox = svg.append("g")
   storyboxbtn.append("rect")
   .attr("rx", 10)
   .attr("ry", 10)
-  .attr('width', 100)
-  .attr('height',40)
+  .attr("width", 100)
+  .attr("height",40)
   .style("fill", "white")
   .style("opacity", 0.8)
   .style("stroke-width", 1);
@@ -1184,28 +1276,24 @@ var storybox = svg.append("g")
   .text("Continue")
   .style("font-size", "16px")
   .style("pointer-events", "none")
-  .attr('x',8)
-  .attr('y',25);
+  .attr("x",8)
+  .attr("y",25);
 
   storyboxbtn.on("mouseup", storyshow);
 
 var highlightrect = svg.append("g");
 
-  highlightrect.append("rect")
-     .attr('x',1138)
-     .attr('y',485)
-     .attr('width', 150)
-     .attr('height',25)
-     .style("fill", "none")
-     .style("stroke-width", 2);
 
-highlightrect.append('line')
-  .attr('x1', 1138)
-  .attr('y1', 485)
-  .attr('x2', 820)
-  .attr('y2', 220)
-  .attr('stroke', 'black')
-  .attr('stroke-width', 2);
+     highlightrect.append("rect")
+       .attr("x", 1030)
+       .attr("y", 460)
+       .attr("width", 860)
+       .attr("height",150)
+       .style("fill", "yellow")
+       .style("opacity", 0)
+       .transition()
+       .duration(2000)
+       .style("opacity", 0.5);
 
 
 }; //Story mode
@@ -1213,10 +1301,16 @@ highlightrect.append('line')
 function updatestorytext(){
 
   storybox.selectAll("text")
+             .style("opacity", 0);
+
+  storybox.selectAll("text")
   .data(storytextarray)
     .text(function(d){return d})
-    .attr("x", "10")
-    .attr("y", function(d, i) {return 30+(i*25)} );
+    .attr("x", "200")
+    .attr("y", function(d, i) {return 30+(i*25)} )
+    .transition()
+    .duration(1000)
+    .style("opacity", 1);
 
 if(counter == 1){
 storyboxbtn.select("text")
