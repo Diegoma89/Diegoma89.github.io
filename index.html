@@ -554,34 +554,19 @@ function storyshow(){
 
 var annotRL = svg.append("g");
 
+
   annotRL.append("rect")
      .attr("x",655)
      .attr("y",630)
      .attr("width", 60)
      .attr("height",30)
-     .style("fill", "none")
-     .style("stroke-width", 2)
-     .style("opacity", 0);
+     .style("fill", "yellow")
+     .style("opacity", 0)
+     .transition()
+     .duration(2000)
+     .style("opacity", 0.5);
 
 
-annotRL.append("line")
-       .attr("x1", 800)
-       .attr("y1", 200)
-       .attr("x2", 705)
-       .attr("y2", 630)
-       .attr("stroke", "black")
-       .attr("stroke-width", 2)
-       .style("opacity", 0);
-
- annotRL.selectAll("rect")
-          .transition()
-          .duration(1000)
-          .style("opacity", 1);
-
-annotRL.selectAll("line")
-         .transition()
-         .duration(1000)
-         .style("opacity", 1);
 
 
 
