@@ -66,6 +66,11 @@ path.fade{ display: none;}
   border: 1px solid black;
 }
 
+.btnstory {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .init {
   margin-left: 10px;
 }
@@ -85,6 +90,18 @@ path.fade{ display: none;}
    word-wrap: break-word;
    width: 350px;
    font-size: 18px;
+}
+
+div.tooltip {
+    position: absolute;
+    text-align: center;
+    width: 60px;
+    height: 20px;
+    padding: 10px;
+    font: 12px;
+    background: lightgray;
+    border-radius: 5px;
+    pointer-events: none;
 }
 
 #civtextdiv {
@@ -129,7 +146,7 @@ var civtextdivteam = d3.select("#civtextdivteam");
 var civselection = "Aztecs";
 var civlist;
 var counter = 0;
-var story = 1;
+var story = 0;
 var color = ["#7f007f","#ffff54","#808000","#9acd32","#7b68ee","#006400","#b0c4de","#00ced1","#ff4500","#008080","#ff69b4","#fffff0","#3cb371","#ff00ff","#4682b4","#d2b48c","#0000ff","#ffc0cb",
              "#fa8072","#32cd32","#8b0000","#dc143c","#dda0dd","#9400d3","#696969","#cd853f","#ffa500","#f0e68c","#b03060","#7fffd4","#98fb98","#1e90ff","#483d8b","#00ff00","#000080"];
 var txtcolor = ["white","black","white","black","white","white","black","black","white","white","black","black","black","white","white","black","white","black",
@@ -179,7 +196,7 @@ function rotate(angle){
 async function Slide1() {
 
 document.getElementById("slideTitle").innerHTML = "Age of Empires 2: Definitive Edition - Winrate by Civilization in Team Games";
-
+console.log(story);
   const winrateciv = await d3.csv('https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/winrate_civ.csv');
   const civdetails = await d3.csv("https://raw.githubusercontent.com/Diegoma89/diegoma89.github.io/master/CivTexts/civdetails.csv");
 
@@ -200,7 +217,7 @@ document.getElementById("slideTitle").innerHTML = "Age of Empires 2: Definitive 
         barelement = document.getElementById(civselection);
       }
        svg.selectAll("image").remove();
-       d3.selectAll("rect").style("stroke-width", 1.5);
+       barchartbars.selectAll("rect").style("stroke-width", 0.5);
        d3.select(barelement).style("stroke-width", 3);
 
        groupspie.selectAll("path")
@@ -270,10 +287,10 @@ civtextdiv.html("<b>"+barselection.civ+" "+"Civilization Details</b><br><br>"+"<
   x = d3.scaleBand().domain(civlist).range([0,width]).padding(0.2);;
   y = d3.scaleLinear().domain([0,1]).range([height,0]);
 
+var barchartbars = svg.append("g")
+      .attr("transform", "translate("+smargin+","+tmargin+")");
 
-  svg.append("g")
-      .attr("transform", "translate("+smargin+","+tmargin+")")
-    .selectAll('rect')
+    barchartbars.selectAll('rect')
     .data(winrateciv)
     .enter()
     .append('rect')
@@ -284,7 +301,7 @@ civtextdiv.html("<b>"+barselection.civ+" "+"Civilization Details</b><br><br>"+"<
       .attr('width',x.bandwidth())
       .attr('height',0)
       .style("fill", function(d, i) {return color[i];})
-      .style("stroke-width", 1);
+      .style("stroke-width", 0.5);
 
   svg.append("g")
       .attr("transform", "translate("+smargin+","+tmargin+")")
@@ -301,7 +318,8 @@ civtextdiv.html("<b>"+barselection.civ+" "+"Civilization Details</b><br><br>"+"<
       .style("text-anchor", "start");
 
 
-  var barchartbars = svg.selectAll("rect")
+
+  barchartbars.selectAll("rect")
     .transition()
     .duration(1000)
     .attr("y", function(d) {return y(d.winrate);})
@@ -350,8 +368,7 @@ var groupspie = svg.append("g")
     .style("font-size","15px");
 
 
-svg.selectAll("rect")
-   .on("mouseover", updatepie);
+barchartbars.on("mouseover", updatepie);
 
 
 groupspie.append("image")
@@ -382,22 +399,31 @@ svg.append("rect")
 
 if(story == 1){
 
-  svg.append("rect")
-  .attr('x',10)
+  var slidebtns = document.getElementsByClassName("button");
+  for(i=0; i<document.getElementsByClassName("button").length; i++){
+
+      slidebtns[i].className += " btnstory";
+  }
+
+  var pageblock = svg.append("rect");
+
+  pageblock.attr('x',10)
   .attr('y',1)
   .attr('width', 1899)
   .attr('height',798)
   .style("fill", "white")
-  .style("opacity", 0)
+  .style("opacity", 0.6)
   .style("stroke-width", 1.5);
 
 var storybox = svg.append("g")
 .attr("transform", "translate(800,20)");
 
   storybox.append("rect")
+  .attr("rx", 20)
+  .attr("ry", 20)
   .attr('width', 400)
   .attr('height',200)
-  .style("fill", "white")
+  .style("fill", "lightgray")
   .style("opacity", 0.8)
   .style("stroke-width", 1.5);
 
@@ -415,6 +441,8 @@ var storybox = svg.append("g")
   .attr("transform", "translate(950,170)");
 
   storyboxbtn.append("rect")
+  .attr("rx", 10)
+  .attr("ry", 10)
   .attr('width', 100)
   .attr('height',40)
   .style("fill", "white")
@@ -447,12 +475,35 @@ function updatestorytext(){
 function storyshow(){
 
   if(counter == 0){
+    pageblock.style("opacity", 0);
   civselection = "Mayans";
   updatepie();
-  storytextarray = ["Let's have a look at Mayans.", "They focus on archers and their", "winrate is above average", "", "They have a defensive team bonus"];
+  storytextarray = ["Let's have a look at Mayans.", "", "They focus on archers and their", "winrate is above average at 53.1%", ""];
   updatestorytext();
+
+  svg.append("rect")
+     .attr('x',655)
+     .attr('y',630)
+     .attr('width', 50)
+     .attr('height',30)
+     .style("fill", "none")
+     .style("stroke-width", 2);
+
+
+     svg.append('line')
+       .attr('x1', 705)
+       .attr('y1', 630)
+       .attr('x2', 800)
+       .attr('y2', 200)
+       .attr('stroke', 'black')
+       .attr('stroke-width', 2);
+
+
+
 }
 if (counter == 1) {
+  storytextarray = ["They pair up with Britons a lot.", "Archer strategies are amplified", "due Britons team bonus.", "Indians and Franks follow closely", "How do paired winrates look?"];
+
     Press2();
 }
 
@@ -518,9 +569,6 @@ document.getElementById("slideTitle").innerHTML = "Age of Empires 2: Definitive 
 
         var fo = fc.slice(0,mat_size);
 
-
-        //set color scale. More color options: https://github.com/d3/d3-scale-chromatic
-      //  var color = d3.scaleOrdinal(d3.schemeTableau10);
 
         //d3 chord generator
         var chord = d3.chord()
@@ -635,7 +683,7 @@ svgf.append("image")
     .attr("width", "200px");
 
 civtextdiv.style("left","1050px")
-          .style("top", "630px").html("<b>Most likely paired</b>"
+          .style("top", "580px").html("<b>Most likely paired</b>"
                                       +"<br>?"
                                       +"<br>?"
                                       +"<br>?"
@@ -675,7 +723,8 @@ function updatetext(i){
 
 var selectwithindx = [];
 for (var j=0; j<matrix[i].length; j++) {
-  selectwithindx.push({"matches": matrix[i][j], "index": fc[j], "TeamBonus": civdetails.filter(function(d, i) { return i==j }).map(function(d) { return d.TB })});
+  selectwithindx.push({"matches": matrix[i][j], "index": fc[j], "TeamBonus": civdetails.filter(function(d, i) { return i==j }).map(function(d) { return d.TB }),
+  "Focus": civdetails.filter(function(d, i) { return i==j }).map(function(d) { return d.Focus })});
  };
  selectwithindx = selectwithindx.sort(function(a, b){return b.matches -a.matches;});
 console.log(selectwithindx);
@@ -694,24 +743,137 @@ svgf.select("image")
   civtextdiv.html("<b>Most likely paired</b>"
                   +"<br><b>"+selectwithindx.filter(function(d, i) { if(i==0) { return d } }).map(function(d, i) { return d.index })+"</b> with "
                   +selectwithindx.filter(function(d, i) { if(i==0) { return d } }).map(function(d, i) { return d.matches }) + " matches"
+                  +" - Focus: "+selectwithindx.filter(function(d, i) { return i==0 } ).map(function(d, i) { return d.Focus })
                   +" - Team Bonus: "+selectwithindx.filter(function(d, i) { return i==0 } ).map(function(d, i) { return d.TeamBonus })
                   +"<br><b>"+selectwithindx.filter(function(d, i) { if(i==1) { return d } }).map(function(d, i) { return d.index })+"</b> with "
                   +selectwithindx.filter(function(d, i) { if(i==1) { return d } }).map(function(d, i) { return d.matches }) + " matches"
+                  +" - Focus: "+selectwithindx.filter(function(d, i) { return i==1 } ).map(function(d, i) { return d.Focus })
                   +" - Team Bonus: "+selectwithindx.filter(function(d, i) { return i==1 } ).map(function(d, i) { return d.TeamBonus })
                   +"<br><b>"+selectwithindx.filter(function(d, i) { if(i==2) { return d } }).map(function(d, i) { return d.index })+"</b> with "
                   +selectwithindx.filter(function(d, i) { if(i==2) { return d } }).map(function(d, i) { return d.matches }) + " matches"
+                  +" - Focus: "+selectwithindx.filter(function(d, i) { return i==2 } ).map(function(d, i) { return d.Focus })
                   +" - Team Bonus: "+selectwithindx.filter(function(d, i) { return i==2 } ).map(function(d, i) { return d.TeamBonus })
                   +"<br><br><br><b>Least likely paired</b>"
                   +"<br><b>"+selectwithindx.filter(function(d, i) { if(i==34) { return d } }).map(function(d, i) { return d.index })+"</b> with "
                   +selectwithindx.filter(function(d, i) { if(i==34) { return d } }).map(function(d, i) { return d.matches }) + " matches"
+                  +" - Focus: "+selectwithindx.filter(function(d, i) { return i==34 } ).map(function(d, i) { return d.Focus })
                   +" - Team Bonus: "+selectwithindx.filter(function(d, i) { return i==34 } ).map(function(d, i) { return d.TeamBonus })
                   +"<br><b>"+selectwithindx.filter(function(d, i) { if(i==33) { return d } }).map(function(d, i) { return d.index })+"</b> with "
                   +selectwithindx.filter(function(d, i) { if(i==33) { return d } }).map(function(d, i) { return d.matches }) + " matches"
+                  +" - Focus: "+selectwithindx.filter(function(d, i) { return i==33 } ).map(function(d, i) { return d.Focus })
                   +" - Team Bonus: "+selectwithindx.filter(function(d, i) { return i==33 } ).map(function(d, i) { return d.TeamBonus })
                   +"<br><b>"+selectwithindx.filter(function(d, i) { if(i==32) { return d } }).map(function(d, i) { return d.index })+"</b> with "
                   +selectwithindx.filter(function(d, i) { if(i==32) { return d } }).map(function(d, i) { return d.matches }) + " matches"
+                  +" - Focus: "+selectwithindx.filter(function(d, i) { return i==32 } ).map(function(d, i) { return d.Focus })
                   +" - Team Bonus: "+selectwithindx.filter(function(d, i) { return i==32 } ).map(function(d, i) { return d.TeamBonus }));
 
+};
+
+
+if(story == 1){
+
+
+ribbons.classed("fade", function(d){ return d.source.index != 23 && d.target.index != 23;});
+updatetext(23);
+
+
+  svgf.append("rect")
+  .attr('x',10)
+  .attr('y',1)
+  .attr('width', 1899)
+  .attr('height',798)
+  .style("fill", "white")
+  .style("opacity", 0)
+  .style("stroke-width", 1.5);
+
+var storybox = svgf.append("g")
+.attr("transform", "translate(800,20)");
+
+  storybox.append("rect")
+  .attr("rx", 20)
+  .attr("ry", 20)
+  .attr('width', 400)
+  .attr('height',200)
+  .style("fill", "lightgray")
+  .style("opacity", 0.8)
+  .style("stroke-width", 1.5);
+
+
+  storybox.selectAll("text")
+  .data(storytextarray)
+  .enter()
+    .append("text")
+    .style("font-size", "20px");
+
+    updatestorytext();
+
+
+  var storyboxbtn = svgf.append("g")
+  .attr("transform", "translate(950,170)");
+
+  storyboxbtn.append("rect")
+  .attr("rx", 10)
+  .attr("ry", 10)
+  .attr('width', 100)
+  .attr('height',40)
+  .style("fill", "white")
+  .style("opacity", 0.8)
+  .style("stroke-width", 1);
+
+  storyboxbtn.append("text")
+  .text("Continue")
+  .style("font-size", "16px")
+  .style("pointer-events", "none")
+  .attr('x',8)
+  .attr('y',25);
+
+  storyboxbtn.on("mouseup", storyshow);
+
+
+  svgf.append("rect")
+     .attr('x',1350)
+     .attr('y',70)
+     .attr('width', 210)
+     .attr('height',30)
+     .style("fill", "yellow")
+     .style("opacity", "0.5")
+     .style("stroke-width", 2);
+
+
+     svgf.append('rect')
+       .attr('x', 1315)
+       .attr('y', 480)
+       .attr('width', 560)
+       .attr('height',30)
+       .style("fill", "yellow")
+       .style("opacity", "0.5");
+
+       svgf.append('rect')
+         .attr('x', 1045)
+         .attr('y', 500)
+         .attr('width', 130)
+         .attr('height',30)
+         .style("fill", "yellow")
+         .style("opacity", "0.5");
+
+
+}; //Story mode
+
+function updatestorytext(){
+
+  storybox.selectAll("text")
+  .data(storytextarray)
+    .text(function(d){return d})
+    .attr("x", "10")
+    .attr("y", function(d, i) {return 30+(i*25)} );
+
+}
+
+
+function storyshow(){
+
+  storytextarray = ["They do very well togheter!", "", "Teaming up increased mayans", "individual winrate of 53.1% to ", "61.3% when paired with Britons."];
+  Press3();
 };
 
 };
@@ -729,7 +891,10 @@ const winrateciv = await d3.csv('https://raw.githubusercontent.com/Diegoma89/die
 
 var  civlist = winrateciv.map(function(d) {return d.civ});
 var  winrates = winrateciv.map(function(d) {return d.winrate});
-//var color = d3.scaleOrdinal(d3.schemeTableau10);
+
+var divtp = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
 
 
 
@@ -760,7 +925,8 @@ var  winrates = winrateciv.map(function(d) {return d.winrate});
     var PairWin = d3.sum(civ2WD, function(d) { return d.won });
     PairWins.push(PairWin);
     PairMatches.push(civ2WD.length);
-    PairWinrates.push({"civpair": civlist[i], "winrate": PairWin/civ2WD.length, "matches": civ2WD.length, "TeamBonus": civdetails.filter(function(d, k) { return k==i }).map(function(d) { return d.TB })})
+    PairWinrates.push({"civpair": civlist[i], "winrate": PairWin/civ2WD.length, "matches": civ2WD.length, "TeamBonus": civdetails.filter(function(d, k) { return k==i }).map(function(d) { return d.TB }),
+                       "Focus": civdetails.filter(function(d, k) { return k==i }).map(function(d) { return d.Focus })})
   };
 
 
@@ -776,7 +942,7 @@ var svg = d3.select("body").append("svg")
 
 
 var simulation = d3.forceSimulation()
-.force("link", d3.forceLink().distance(function(d) { return 400-(d.winrate*400)/*if(d.winrate==0) { return 400 } else {return (Math.abs(Math.log(d.winrate)))*250 };*/})
+.force("link", d3.forceLink().distance(function(d) { return 400-(d.winrate*400)})
     .id(function(d) { return d.value;}))
 .force("charge", d3.forceManyBody().strength(-1000))
 .force("center", d3.forceCenter(width / 2, height / 2));
@@ -802,9 +968,19 @@ var nodesel = svg.selectAll(".node")
       .on("drag", dragged)
       .on("end", dragended));
 
+console.log(nodes);
 nodesel.append("circle")
 .attr("r",radius)
-.style("fill",function(d, i) {if(i==0){return "#000000"} else{ return color[i-1] } } );
+.attr("id",function(d, i) {return d.value})
+.style("fill",function(d, i) {if(i==0){return "#000000"} else{ return color[i-1] } } )
+.on("mouseover", function(d) {
+              if( d3.event.srcElement.id != (" " + civselection + " ") ){
+            divtp.style("opacity", .8);
+            divtp.html( (PairWinrates.filter(function(d) { return d.civpair == d3.event.srcElement.id }).map(function(d) { return d.winrate })*100).toFixed(1)+"%" )
+                .style("left", (d3.event.pageX) + "px")
+                .style("top", (d3.event.pageY - 28) + "px");
+            }})
+        .on("mouseout", function(d) {  divtp.style("opacity", 0);});
 
 nodesel.append("text")
 .attr("transform","translate(0,4)")
@@ -853,27 +1029,33 @@ civtextdiv.style("left","1050px").style("top", "580px").html("<b>Most likely pai
                                                             +"</b> - Winrate: "+PairWinrates.filter(function(d, i) { if(i==0) { return d } }).map(function(d, i) { return (d.winrate*100).toFixed(1); })+"%"
                                                             +" on "+PairWinrates.filter(function(d, i) { if(i==0) { return d } }).map(function(d, i) { return d.matches })+" matches"
                                                             +" - Team Bonus: "+PairWinrates.filter(function(d, i) { return i==0 } ).map(function(d, i) { return d.TeamBonus })
+                                                            +" - Focus: "+PairWinrates.filter(function(d, i) { return i==0 } ).map(function(d, i) { return d.Focus })
                                                             +"<br><b>"+PairWinrates.filter(function(d, i) { if(i==1) { return d } }).map(function(d, i) { return d.civpair })
                                                             +"</b> - Winrate: "+PairWinrates.filter(function(d, i) { if(i==1) { return d } }).map(function(d, i) { return (d.winrate*100).toFixed(1); })+"%"
                                                             +" on "+PairWinrates.filter(function(d, i) { if(i==1) { return d } }).map(function(d, i) { return d.matches })+" matches"
                                                             +" - Team Bonus: "+PairWinrates.filter(function(d, i) { return i==1 } ).map(function(d, i) { return d.TeamBonus })
+                                                            +" - Focus: "+PairWinrates.filter(function(d, i) { return i==1 } ).map(function(d, i) { return d.Focus })
                                                             +"<br><b>"+PairWinrates.filter(function(d, i) { if(i==2) { return d } }).map(function(d, i) { return d.civpair })
                                                             +"</b> - Winrate: "+PairWinrates.filter(function(d, i) { if(i==2) { return d } }).map(function(d, i) { return (d.winrate*100).toFixed(1); })+"%"
                                                             +" on "+PairWinrates.filter(function(d, i) { if(i==2) { return d } }).map(function(d, i) { return d.matches })+" matches"
                                                             +" - Team Bonus: "+PairWinrates.filter(function(d, i) { return i==2 } ).map(function(d, i) { return d.TeamBonus })
+                                                            +" - Focus: "+PairWinrates.filter(function(d, i) { return i==2 } ).map(function(d, i) { return d.Focus })
                                                             +"<br><br><br><b>Least likely pair to lose</b>"
                                                             +"<br><b>"+PairWinrates.filter(function(d, i) { if(i==34) { return d } }).map(function(d, i) { return d.civpair })
                                                             +"</b> - Winrate: "+PairWinrates.filter(function(d, i) { if(i==34) { return d } }).map(function(d, i) { return (d.winrate*100).toFixed(1); })+"%"
                                                             +" on "+PairWinrates.filter(function(d, i) { if(i==34) { return d } }).map(function(d, i) { return d.matches })+" matches"
                                                             +" - Team Bonus: "+PairWinrates.filter(function(d, i) { return i==34 } ).map(function(d, i) { return d.TeamBonus })
+                                                            +" - Focus: "+PairWinrates.filter(function(d, i) { return i==34 } ).map(function(d, i) { return d.Focus })
                                                             +"<br><b>"+PairWinrates.filter(function(d, i) { if(i==33) { return d } }).map(function(d, i) { return d.civpair })
                                                             +"</b> - Winrate: "+PairWinrates.filter(function(d, i) { if(i==33) { return d } }).map(function(d, i) { return (d.winrate*100).toFixed(1); })+"%"
                                                             +" on "+PairWinrates.filter(function(d, i) { if(i==33) { return d } }).map(function(d, i) { return d.matches })+" matches"
                                                             +" - Team Bonus: "+PairWinrates.filter(function(d, i) { return i==33 } ).map(function(d, i) { return d.TeamBonus })
+                                                            +" - Focus: "+PairWinrates.filter(function(d, i) { return i==33 } ).map(function(d, i) { return d.Focus })
                                                             +"<br><b>"+PairWinrates.filter(function(d, i) { if(i==32) { return d } }).map(function(d, i) { return d.civpair })
                                                             +"</b> - Winrate: "+PairWinrates.filter(function(d, i) { if(i==32) { return d } }).map(function(d, i) { return (d.winrate*100).toFixed(1); })+"%"
                                                             +" on "+PairWinrates.filter(function(d, i) { if(i==32) { return d } }).map(function(d, i) { return d.matches })+" matches"
                                                             +" - Team Bonus: "+PairWinrates.filter(function(d, i) { return i==32 } ).map(function(d, i) { return d.TeamBonus })
+                                                            +" - Focus: "+PairWinrates.filter(function(d, i) { return i==32 } ).map(function(d, i) { return d.Focus })
                                                           );
 
 
@@ -951,6 +1133,117 @@ function iconclicked(){
     Press3();
 };
 
+
+if(story == 1){
+
+counter = 0;
+  svg.append("rect")
+  .attr('x',10)
+  .attr('y',1)
+  .attr('width', 1899)
+  .attr('height',798)
+  .style("fill", "white")
+  .style("opacity", 0)
+  .style("stroke-width", 1.5);
+
+var storybox = svg.append("g")
+.attr("transform", "translate(800,20)");
+
+  storybox.append("rect")
+  .attr("rx", 20)
+  .attr("ry", 20)
+  .attr('width', 400)
+  .attr('height',200)
+  .style("fill", "lightgray")
+  .style("opacity", 0.8)
+  .style("stroke-width", 1.5);
+
+
+  storybox.selectAll("text")
+  .data(storytextarray)
+  .enter()
+    .append("text")
+    .style("font-size", "20px");
+
+    updatestorytext();
+
+
+  var storyboxbtn = svg.append("g")
+  .attr("transform", "translate(950,170)");
+
+  storyboxbtn.append("rect")
+  .attr("rx", 10)
+  .attr("ry", 10)
+  .attr('width', 100)
+  .attr('height',40)
+  .style("fill", "white")
+  .style("opacity", 0.8)
+  .style("stroke-width", 1);
+
+  storyboxbtn.append("text")
+  .text("Continue")
+  .style("font-size", "16px")
+  .style("pointer-events", "none")
+  .attr('x',8)
+  .attr('y',25);
+
+  storyboxbtn.on("mouseup", storyshow);
+
+var highlightrect = svg.append("g");
+
+  highlightrect.append("rect")
+     .attr('x',1138)
+     .attr('y',485)
+     .attr('width', 150)
+     .attr('height',25)
+     .style("fill", "none")
+     .style("stroke-width", 2);
+
+highlightrect.append('line')
+  .attr('x1', 1138)
+  .attr('y1', 485)
+  .attr('x2', 820)
+  .attr('y2', 220)
+  .attr('stroke', 'black')
+  .attr('stroke-width', 2);
+
+
+}; //Story mode
+
+function updatestorytext(){
+
+  storybox.selectAll("text")
+  .data(storytextarray)
+    .text(function(d){return d})
+    .attr("x", "10")
+    .attr("y", function(d, i) {return 30+(i*25)} );
+
+if(counter == 1){
+storyboxbtn.select("text")
+    .text("Go Back");
+}
+
+}
+
+
+function storyshow(){
+
+if(counter == 0){
+  counter = 1;
+  storytextarray = ["The chart on the left shows", "each civilization as a node.", "The closer to your selection", "the better the winrate", "How does your favorite do?"];
+  highlightrect.remove()
+  updatestorytext();
+} else {
+  story = 0;
+  var slidebtns = document.getElementsByClassName("button");
+  for(i=0; i<document.getElementsByClassName("button").length; i++){
+
+      slidebtns[i].className =  slidebtns[i].className.replace(" btnstory", "");
+  }
+Press1();
+};
+
+};
 
 };
 
