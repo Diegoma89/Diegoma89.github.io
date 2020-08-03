@@ -1,9 +1,0 @@
-Towers and navy
-War Wagon and Turtle Ship
-Villagers have +3 Line of Sight.
-Stone Miners work 20% faster.
-Tower upgrades are free (Bombard Tower requires Chemistry).
-Towers (except Bombard Towers) have +1/+2 range in the Castle/Imperial Age.
-Fortifications are built 33% faster.
-Military units Cost -20% less wood (except siege weapons) (since the Definitive Edition).
-Team bonus: Mangonel line minimum range reduced.

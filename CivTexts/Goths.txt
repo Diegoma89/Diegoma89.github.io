@@ -1,7 +1,0 @@
-Infantry
-Huskarl
-Infantry are 20%/25%/30%/35% cheaper in the Dark/Feudal/Castle/Imperial Age.
-Infantry have +1/+2/+3 attack bonus against standard buildings in the Feudal/Castle/Imperial Age.
-Villagers have +5 attack against Wild Boars and carry +15 food from hunting.
-+10 population cap in the Imperial Age.
-Team bonus: Barracks work 20% faster.

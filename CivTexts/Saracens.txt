@@ -1,8 +1,0 @@
-Cavalry and navy
-Mameluke
-The commodity trading fee is 5%.
-Markets cost -75 wood.
-Transport Ships have double HP and +5 carry capacity.
-Galleys attack 20% faster.
-Archers (excluding Skirmishers) have +1/+2/+3 attack against standard buildings in the Feudal/Castle/Imperial Age.
-Team bonus: Foot archers have +1 attack against standard buildings.

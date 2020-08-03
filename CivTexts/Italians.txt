@@ -1,7 +1,0 @@
-Navy and archers
-Genoese Crossbowman and Condottiero
-Advancing to the next Age is 15% cheaper.
-Dock technologies are 50% cheaper.
-Fishing Ships are 20% cheaper.
-Gunpowder units are 20% cheaper.
-Team bonus: Condottieri are available at the Barracks.

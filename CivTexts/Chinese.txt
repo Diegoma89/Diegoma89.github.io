@@ -1,7 +1,0 @@
-Archers
-Chu Ko Nu
-Start game with three extra Villagers, but with -200 food and -50 wood.
-Town Center supports ten population (instead of five).
-Technologies are 10%/15%/20% cheaper in the Feudal/Castle/Imperial Age.
-Demolition Ships have +50% HP.
-Team bonus: Farms start with +45 food.

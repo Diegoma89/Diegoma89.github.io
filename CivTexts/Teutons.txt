@@ -1,8 +1,0 @@
-Infantry
-Teutonic Knight
-Monks have double healing range.
-Towers garrison twice as many units.
-Murder Holes are free.
-Farms are 33% cheaper.
-Town Centers can garrison +10 units.
-Team bonus: Units resist conversion.

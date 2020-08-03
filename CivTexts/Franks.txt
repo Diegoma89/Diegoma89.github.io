@@ -1,7 +1,0 @@
-Cavalry
-Throwing Axeman
-Farm upgrades are free.
-Castles are 25% cheaper.
-Cavalry have +20% HP.
-Foragers work 25% faster.
-Team bonus: Knights have +2 Line of Sight.

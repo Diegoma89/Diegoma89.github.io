@@ -1,7 +1,0 @@
-Navy
-Karambit Warrior
-Advancing in Age is +80% faster.
-Fish Traps are 33% cheaper.
-Fish Traps provide unlimited food.
-Battle Elephants are 30% cheaper.
-Team bonus: Docks have double Line of Sight.

@@ -1,7 +1,0 @@
-Archers
-Rattan Archer and Imperial Skirmisher
-Reveal enemy positions at game start.
-Economic upgrades cost no wood.
-Archery Range units have +20% HP.
-Conscription is free.
-Team bonus: Imperial Skirmishers are available at the Archery Range.

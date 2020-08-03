@@ -1,8 +1,0 @@
-Monks and infantry
-Jaguar Warrior
-Start the game with an Eagle Scout.
-Villagers carry +5 extra resources.
-All military units are created 15% faster.
-Monks gain 5 HP for every researched Monastery technology.
-Start with +50 gold.
-Team bonus: Relics generate +33% gold.

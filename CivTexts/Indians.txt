@@ -1,6 +1,0 @@
-Camel Riders and gunpowder units
-Elephant Archer and Imperial Camel Rider
-Fishermen work 10% faster.
-Villagers are 10%/15%/20%/25% cheaper in the Dark/Feudal/Castle/Imperial Age.
-Camel Riders have +1 pierce armor.
-Team bonus: Camels have +6 attack against buildings.

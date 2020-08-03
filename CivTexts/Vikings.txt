@@ -1,6 +1,0 @@
-Infantry and navy
-Berserk and Longboat
-Warships are 15%/15%/20% cheaper in the Feudal/Castle/Imperial Age.
-Infantry have +10%/+15%/+20% HP in the Feudal/Castle/Imperial Age.
-Wheelbarrow and Hand Cart are free.
-Team bonus: Docks are 15% cheaper.

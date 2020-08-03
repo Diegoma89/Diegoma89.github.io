@@ -1,8 +1,0 @@
-Defense
-Cataphract
-Buildings have +10%/+20%/+30%/+40% HP in the Dark/Feudal/Castle/Imperial Age.
-Camel Riders, Skirmishers, and the Spearman lines are 25% cheaper.
-Fire Ships attack 20% faster.
-Advancing to the Imperial Age is 33% cheaper.
-Town Watch is free.
-Team bonus: Monks heal 50% faster.

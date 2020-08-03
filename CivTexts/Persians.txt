@@ -1,5 +1,0 @@
-Cavalry
-War Elephant
-Start game with +50 food and +50 wood.
-Town Centers and Docks have double HP and work 10%/15%/20% faster in the Feudal/Castle/Imperial Age.
-Team bonus: Knights have +2 attack against archers.

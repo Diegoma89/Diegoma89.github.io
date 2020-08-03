@@ -1,6 +1,0 @@
-Archers and siege weapons
-Shotel Warrior
-Archers fire +15% faster.
-Receive +100 food and +100 gold whenever a new Age is reached.
-The Pikeman upgrade is free.
-Team bonus: Towers and Outposts have +3 Line of Sight.

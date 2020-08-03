@@ -1,6 +1,0 @@
-Cavalry
-Tarkan
-Start the game with -100 wood, but with the population cap at the maximum.
-Cavalry Archers are 10%/20% cheaper in the Castle/Imperial Age.
-Trebuchets have +35% accuracy against units.
-Team bonus: Stables work 20% faster.

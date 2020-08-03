@@ -1,6 +1,0 @@
-Infantry
-Samurai
-Fishing Ships have double HP, +2 pierce armor, and work 5%/10%/15%/20% faster in the Dark/Feudal/Castle/Imperial Age.
-Mills, Lumber Camps, and Mining Camps are 50% cheaper.
-Infantry attacks 33% faster starting in the Feudal Age.
-Team bonus: Galleys have +50% Line of Sight.
